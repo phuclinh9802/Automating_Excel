@@ -40,17 +40,22 @@ def readData(str):
 
     # calculate data - Blank
     for y in range(cols):
-        if y > 0 and y < 16:
-            count += 1
-            record = []
-            for x in range(rows):
+        record = []
+        count += 1
+        for x in range(rows):
+            if y > 0 and y < 16:
                 if isinstance(ws.cell(x,y).value, float) and isinstance(ws.cell(x,16).value, float):
                     record.append(ws.cell(x,y).value - ws.cell(x, 16).value)
-            new_record = record
-            table.append(new_record)
+                else:
+                    record.append(ws.cell(x,y).value)
+            else:
+                record.append(ws.cell(x,y).value)
+        new_record = record
+        table.append(new_record)
+
 
     # replace 0 with empty cell
-    replace_empty(table)
+    # replace_empty(table)
 
     # separating calculations to another xlsx file
     new_file_calculated(table, count)
@@ -91,10 +96,10 @@ def tkinter_window():
     window.mainloop()
 
 
+# counting appearance
 
+#tkinter_window()
 
-tkinter_window()
-
-
+readData('Raw_data_and_steps_Diabetes_data.xlsx')
 
 
