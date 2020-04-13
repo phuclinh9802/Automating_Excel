@@ -3,6 +3,7 @@ import openpyxl
 import cython_runtime
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 import timeit
 import xlsxwriter
 
@@ -21,7 +22,7 @@ def replace_empty(list):
 
 
 def new_file_calculated(list, cols):
-    workbook = xlsxwriter.Workbook('calculated_data_1.xlsx')
+    workbook = xlsxwriter.Workbook('calculated_data_2.xlsx')
     worksheet = workbook.add_worksheet()
 
     for x in range(cols):
@@ -55,7 +56,7 @@ def readData(str):
 
 
     # replace 0 with empty cell
-    # replace_empty(table)
+    replace_empty(table)
 
     # separating calculations to another xlsx file
     new_file_calculated(table, count)
@@ -64,18 +65,29 @@ def readData(str):
 def tkinter_window():
 
     window = Tk()
-    frame = Frame(window)
+    # frame = Frame(window)
+
 
     window.title("Calculating Metabolomic Data")
 
-    window.geometry('600x100')
+    window.geometry('500x200')
 
-    lbl = Label(frame, text="Excel File Name")
-    lbl.grid()
+    tab_control = ttk.Notebook(window)
+    tab1 = ttk.Frame(tab_control)
+    tab_control.add(tab1, text="Calculate Step 1")
+    tab_control.pack(expand=1, fill="both")
 
-    txt = Entry(frame, width=40)
-    txt.grid()
+    tab2 = ttk.Frame(tab_control)
+    tab_control.add(tab2, text="Separate Group")
 
+    # tab 1
+    lbl = Label(tab1, text="Excel File Name")
+    lbl.pack()
+
+    txt = Entry(tab1, width=40)
+    txt.pack()
+
+    # generate a new xlsx file
     def clicked():
         start = timeit.default_timer()
         res = "File has been entered."
@@ -84,22 +96,45 @@ def tkinter_window():
         stop = timeit.default_timer()
         print("Time: ", stop - start)
 
-    btn = Button(frame, text="Generate", command=clicked)
+    btn = Button(tab1, text="Generate", command=clicked)
+    btn.pack()
 
-    btn.grid()
 
-    frame.grid(row=0, column=0, sticky="NESW")
-    frame.grid_rowconfigure(0, weight=1)
-    frame.grid_columnconfigure(0, weight=1)
-    window.grid_rowconfigure(0, weight=1)
-    window.grid_columnconfigure(0, weight=1)
+
+    # tab 2
+    lbl = Label(tab2, text="Excel File Name")
+    lbl.pack()
+
+    txt = Entry(tab2, width=40)
+    txt.pack()
+
+    def separate():
+        res = "Group name has been entered"
+        messagebox.showinfo('Success!', res)
+
+    btn = Button(tab2, text="Generate", command=separate)
+    btn.pack()
+
     window.mainloop()
 
 
 # counting appearance
+def count_appearance(table, str):
+    count = 0
+    tab = []
+    for y in range(table):
+        record = []
+        if table[y][0] == str:
+            for x in range(table[0]):
+                if isinstance(table[x][y], float):
+                    record.append(table[x][y])
+            new_record = record
+            tab.append(new_record)
 
-#tkinter_window()
+    return tab
 
-readData('Raw_data_and_steps_Diabetes_data.xlsx')
+
+tkinter_window()
+
 
 
