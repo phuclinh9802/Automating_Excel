@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="cca0e643-88b7-405b-9493-2f76360c0818" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Raw_data_and_steps_Diabetes_data.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Raw_data_and_steps_Diabetes_data.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calculated_data_1.xlsx" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/~$calculated_data_1.xlsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +30,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager">
     <configuration name="data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -100,6 +98,10 @@
     </state>
     <state width="1419" height="200" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1586324229103" />
     <state width="931" height="201" key="GridCell.Tab.0.right/0.23.1440.831@0.23.1440.831" timestamp="1585159575804" />
+    <state x="229" y="89" key="SettingsEditor" timestamp="1586744702628">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="229" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1586744702628" />
     <state x="399" y="282" key="com.intellij.ide.util.TipDialog" timestamp="1586626804196">
       <screen x="0" y="23" width="1440" height="827" />
     </state>

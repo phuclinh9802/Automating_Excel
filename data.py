@@ -54,20 +54,45 @@ def readData(str):
         new_record = record
         table.append(new_record)
 
-
     # replace 0 with empty cell
     replace_empty(table)
 
     # separating calculations to another xlsx file
     new_file_calculated(table, count)
 
+    return table
+
+# procuce a new data with count
+def produce_count_data(str):
+    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
+    separated_table = separating_group(original_table, str)
+
+    if str == "Control":
+        workbook = xlsxwriter.Workbook('Control_Group.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(separated_table):
+            worksheet.write_column(0, x, separated_table[x])
+        workbook.close()
+    elif str == "Diabetes":
+        workbook = xlsxwriter.Workbook('Diabetes_Group.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(separated_table):
+            worksheet.write_column(0, x, separated_table[x])
+        workbook.close()
+    elif str == "Diabetes+Insulin":
+        workbook = xlsxwriter.Workbook('Diabetes_Insulin_Group.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(separated_table):
+            worksheet.write_column(0, x, separated_table[x])
+        workbook.close()
+
+
+
 # Build a GUI to automatically calculate and generate a new separated file
 def tkinter_window():
 
     window = Tk()
     # frame = Frame(window)
-
-
     window.title("Calculating Metabolomic Data")
 
     window.geometry('500x200')
@@ -99,27 +124,30 @@ def tkinter_window():
     btn = Button(tab1, text="Generate", command=clicked)
     btn.pack()
 
-
-
     # tab 2
-    lbl = Label(tab2, text="Excel File Name")
-    lbl.pack()
+    lbl_2 = Label(tab2, text="Group Name")
+    lbl_2.pack()
 
-    txt = Entry(tab2, width=40)
-    txt.pack()
+    txt_2 = Entry(tab2, width=40)
+    txt_2.pack()
 
     def separate():
         res = "Group name has been entered"
-        messagebox.showinfo('Success!', res)
+        failed_msg = 'There is no such group. Please try again'
+        if txt_2.get() != 'Control' or txt_2.get() != 'Diabetes' or txt_2.get() != 'Diabetes+Insulin':
+            messagebox.showInfo('Failed!', failed_msg)
+        else:
+            messagebox.showinfo('Success!', res)
+            produce_count_data(txt_2.get())
 
-    btn = Button(tab2, text="Generate", command=separate)
-    btn.pack()
+    btn_2 = Button(tab2, text="Generate", command=separate)
+    btn_2.pack()
 
     window.mainloop()
 
 
-# counting appearance
-def count_appearance(table, str):
+# separate group
+def separating_group(table, str):
     count = 0
     tab = []
     for y in range(table):
@@ -130,6 +158,16 @@ def count_appearance(table, str):
                     record.append(table[x][y])
             new_record = record
             tab.append(new_record)
+
+    count_table = []
+    for x in range(tab[0]):
+        count = 0
+        for y in range(tab):
+            if tab[x][y] is not None:
+                count += 1
+        count_table.append(count)
+
+    tab.append(count_table)
 
     return tab
 
