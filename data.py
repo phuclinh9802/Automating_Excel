@@ -21,6 +21,15 @@ def replace_empty(list):
                 list[y][x] = None
 
 
+# create a new empty xlsx file
+# def new_file():
+#     workbook = xlsxwriter.Workbook('new_file.xlsx')
+#     worksheet = workbook.add_worksheet()
+#     for x in range()
+#         worksheet.write(0,0)
+#     workbook.close()
+
+# create calculated data from original table
 def new_file_calculated(list, cols):
     workbook = xlsxwriter.Workbook('calculated_data_2.xlsx')
     worksheet = workbook.add_worksheet()
@@ -70,21 +79,23 @@ def produce_count_data(str):
     if str == "Control":
         workbook = xlsxwriter.Workbook('Control_Group.xlsx')
         worksheet = workbook.add_worksheet()
-        for x in range(separated_table):
+        for x in range(len(separated_table)):
             worksheet.write_column(0, x, separated_table[x])
         workbook.close()
     elif str == "Diabetes":
         workbook = xlsxwriter.Workbook('Diabetes_Group.xlsx')
         worksheet = workbook.add_worksheet()
-        for x in range(separated_table):
+        for x in range(len(separated_table)):
             worksheet.write_column(0, x, separated_table[x])
         workbook.close()
     elif str == "Diabetes+Insulin":
         workbook = xlsxwriter.Workbook('Diabetes_Insulin_Group.xlsx')
         worksheet = workbook.add_worksheet()
-        for x in range(separated_table):
+        for x in range(len(separated_table)):
             worksheet.write_column(0, x, separated_table[x])
         workbook.close()
+    else:
+        print("Please Try Again!")
 
 
 
@@ -100,7 +111,7 @@ def tkinter_window():
     tab_control = ttk.Notebook(window)
     tab1 = ttk.Frame(tab_control)
     tab_control.add(tab1, text="Calculate Step 1")
-    tab_control.pack(expand=1, fill="both")
+    tab_control.pack(expand=0, fill="both")
 
     tab2 = ttk.Frame(tab_control)
     tab_control.add(tab2, text="Separate Group")
@@ -126,19 +137,28 @@ def tkinter_window():
 
     # tab 2
     lbl_2 = Label(tab2, text="Group Name")
-    lbl_2.pack()
+    lbl_2.pack(padx=2, pady=2)
 
     txt_2 = Entry(tab2, width=40)
     txt_2.pack()
 
+    rad1 = Radiobutton(tab2, text='First', value=1)
+    rad1.pack(fill=X)
+    rad2 = Radiobutton(tab2, text='Second', value=2)
+    rad2.pack(fill=X)
+    rad3 = Radiobutton(tab2, text='Third', value=3)
+    rad3.pack(fill=X)
+
+
     def separate():
         res = "Group name has been entered"
         failed_msg = 'There is no such group. Please try again'
-        if txt_2.get() != 'Control' or txt_2.get() != 'Diabetes' or txt_2.get() != 'Diabetes+Insulin':
-            messagebox.showInfo('Failed!', failed_msg)
-        else:
+        text = txt_2.get()
+        # if text != 'Control' or text != 'Diabetes' or text != 'Diabetes+Insulin':
+        #     messagebox.showinfo('Failed!', failed_msg)
+        if text == "Control" or text == "Diabetes" or text == "Diabetes+Insulin":
             messagebox.showinfo('Success!', res)
-            produce_count_data(txt_2.get())
+            produce_count_data(text)
 
     btn_2 = Button(tab2, text="Generate", command=separate)
     btn_2.pack()
@@ -150,29 +170,43 @@ def tkinter_window():
 def separating_group(table, str):
     count = 0
     tab = []
-    for y in range(table):
+    print(len(table))
+    print(len(table[0]))
+    for y in range(len(table)):
         record = []
         if table[y][0] == str:
-            for x in range(table[0]):
-                if isinstance(table[x][y], float):
-                    record.append(table[x][y])
+            for x in range(len(table[1])):
+                if isinstance(table[y][x], float) or table[y][x] is None:
+                    record.append(table[y][x])
             new_record = record
             tab.append(new_record)
 
+    print(len(tab[0]))
+    print(len(tab))
     count_table = []
-    for x in range(tab[0]):
+    for x in range(len(tab[0])):
         count = 0
-        for y in range(tab):
-            if tab[x][y] is not None:
+        for y in range(len(tab)):
+            if tab[y][x] is not None:
                 count += 1
         count_table.append(count)
 
     tab.append(count_table)
-
     return tab
 
+# check if over 65%, if yes -> keep. If not, empty cells in row
+def check_percentage(str):
+    wb = openpyxl.load_workbook(filename=str)
+    sheet = wb['Sheet1']
+    row = sheet.max_row
+    column = sheet.max_column
+    for x in range(1, row + 1):
+        if sheet.cell(row=x, column=6).value/5.0 < 0.65:
+            sheet.cell(row=x, column=6).value = 0
+            for y in range(1, column):
+                sheet.cell(row=x, column=y).value = None
+
+    wb.save(str)
 
 tkinter_window()
-
-
-
+# check_percentage('Control_Group.xlsx')
