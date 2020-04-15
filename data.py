@@ -1,24 +1,22 @@
 import xlrd
 import openpyxl
-import cython_runtime
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 import timeit
 import xlsxwriter
 
-
-
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
-
 # Replace 0 with empty cell
-def replace_empty(list):
-    table_len = len(list)
-    element_len = len(list[0])
+
+
+def replace_empty(lists):
+    table_len = len(lists)
+    element_len = len(lists[0])
     for y in range(table_len):
         for x in range(element_len):
-            if list[y][x] == 0:
-                list[y][x] = None
+            if lists[y][x] == 0:
+                lists[y][x] = None
 
 
 # create a new empty xlsx file
@@ -30,12 +28,12 @@ def replace_empty(list):
 #     workbook.close()
 
 # create calculated data from original table
-def new_file_calculated(list, cols):
+def new_file_calculated(lists, cols):
     workbook = xlsxwriter.Workbook('calculated_data_2.xlsx')
     worksheet = workbook.add_worksheet()
 
     for x in range(cols):
-        worksheet.write_column(0, x, list[x])
+        worksheet.write_column(0, x, lists[x])
     workbook.close()
 
 # Read the data and calculate
@@ -43,7 +41,7 @@ def readData(str):
     # Load excel file to calculate
     wb = xlrd.open_workbook(str)
     ws = wb.sheet_by_index(0)
-    rows= ws.nrows
+    rows = ws.nrows
     cols = ws.ncols
     table = []
     count = 0
@@ -53,13 +51,13 @@ def readData(str):
         record = []
         count += 1
         for x in range(rows):
-            if y > 0 and y < 16:
-                if isinstance(ws.cell(x,y).value, float) and isinstance(ws.cell(x,16).value, float):
-                    record.append(ws.cell(x,y).value - ws.cell(x, 16).value)
+            if 0 < y < 16:
+                if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 16).value, float):
+                    record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
                 else:
-                    record.append(ws.cell(x,y).value)
+                    record.append(ws.cell(x, y).value)
             else:
-                record.append(ws.cell(x,y).value)
+                record.append(ws.cell(x, y).value)
         new_record = record
         table.append(new_record)
 
@@ -71,24 +69,25 @@ def readData(str):
 
     return table
 
-# procuce a new data with count
-def produce_count_data(str):
-    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
-    separated_table = separating_group(original_table, str)
 
-    if str == "Control":
+# produce a new data with count
+def produce_count_data(string):
+    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
+    separated_table = separating_group(original_table, string)
+
+    if string == "Control":
         workbook = xlsxwriter.Workbook('Control_Group.xlsx')
         worksheet = workbook.add_worksheet()
         for x in range(len(separated_table)):
             worksheet.write_column(0, x, separated_table[x])
         workbook.close()
-    elif str == "Diabetes":
+    elif string == "Diabetes":
         workbook = xlsxwriter.Workbook('Diabetes_Group.xlsx')
         worksheet = workbook.add_worksheet()
         for x in range(len(separated_table)):
             worksheet.write_column(0, x, separated_table[x])
         workbook.close()
-    elif str == "Diabetes+Insulin":
+    elif string == "Diabetes+Insulin":
         workbook = xlsxwriter.Workbook('Diabetes_Insulin_Group.xlsx')
         worksheet = workbook.add_worksheet()
         for x in range(len(separated_table)):
@@ -96,7 +95,6 @@ def produce_count_data(str):
         workbook.close()
     else:
         print("Please Try Again!")
-
 
 
 # Build a GUI to automatically calculate and generate a new separated file
@@ -111,44 +109,36 @@ def tkinter_window():
     tab_control = ttk.Notebook(window)
     tab1 = ttk.Frame(tab_control)
     tab_control.add(tab1, text="Calculate Step 1")
-    tab_control.pack(expand=0, fill="both")
+    tab_control.pack(expand=YES, fill="both")
 
     tab2 = ttk.Frame(tab_control)
     tab_control.add(tab2, text="Separate Group")
 
+    tab3 = ttk.Frame(tab_control)
+    tab_control.add(tab3, text="Check Percentage")
+
     # tab 1
     lbl = Label(tab1, text="Excel File Name")
-    lbl.pack()
+    lbl.pack(padx=2, pady=2)
 
     txt = Entry(tab1, width=40)
-    txt.pack()
+    txt.pack(padx=2, pady=2)
 
     # generate a new xlsx file
     def clicked():
-        start = timeit.default_timer()
         res = "File has been entered."
-        messagebox.showinfo('Success!', res)
         readData(txt.get())
-        stop = timeit.default_timer()
-        print("Time: ", stop - start)
+        messagebox.showinfo('Success!', res)
 
     btn = Button(tab1, text="Generate", command=clicked)
-    btn.pack()
+    btn.pack(padx=5, pady=5)
 
     # tab 2
     lbl_2 = Label(tab2, text="Group Name")
     lbl_2.pack(padx=2, pady=2)
 
     txt_2 = Entry(tab2, width=40)
-    txt_2.pack()
-
-    rad1 = Radiobutton(tab2, text='First', value=1)
-    rad1.pack(fill=X)
-    rad2 = Radiobutton(tab2, text='Second', value=2)
-    rad2.pack(fill=X)
-    rad3 = Radiobutton(tab2, text='Third', value=3)
-    rad3.pack(fill=X)
-
+    txt_2.pack(padx=2, pady=2)
 
     def separate():
         res = "Group name has been entered"
@@ -157,32 +147,55 @@ def tkinter_window():
         # if text != 'Control' or text != 'Diabetes' or text != 'Diabetes+Insulin':
         #     messagebox.showinfo('Failed!', failed_msg)
         if text == "Control" or text == "Diabetes" or text == "Diabetes+Insulin":
-            messagebox.showinfo('Success!', res)
             produce_count_data(text)
+            messagebox.showinfo('Success!', res)
 
     btn_2 = Button(tab2, text="Generate", command=separate)
-    btn_2.pack()
+    btn_2.pack(padx=5, pady=5)
+
+    # tab 3 - check percentage
+    lbl_3 = Label(tab3, text="Group Name")
+    lbl_3.pack(padx=2, pady=2)
+
+    txt_3 = Entry(tab3, width=40)
+    txt_3.pack(padx=2,pady=2)
+
+    def check():
+        text = txt_3.get()
+        res = "Perfect! The file is being processed."
+        failed = "Either the group does not exist or the file have not been created. Please try again."
+        if text == "Control":
+            check_percentage("Control_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "Diabetes":
+            check_percentage("Diabetes_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "Diabetes+Insulin":
+            check_percentage("Diabetes_Insulin_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        else:
+            messagebox.showinfo('Failed!', failed)
+
+    btn_3 = Button(tab3, text="Generate", command=check)
+    btn_3.pack(padx=5, pady=5)
 
     window.mainloop()
 
 
 # separate group
-def separating_group(table, str):
+def separating_group(table, string):
     count = 0
     tab = []
-    print(len(table))
-    print(len(table[0]))
+
     for y in range(len(table)):
         record = []
-        if table[y][0] == str:
+        if table[y][0] == string:
             for x in range(len(table[1])):
                 if isinstance(table[y][x], float) or table[y][x] is None:
                     record.append(table[y][x])
             new_record = record
             tab.append(new_record)
 
-    print(len(tab[0]))
-    print(len(tab))
     count_table = []
     for x in range(len(tab[0])):
         count = 0
@@ -194,9 +207,10 @@ def separating_group(table, str):
     tab.append(count_table)
     return tab
 
+
 # check if over 65%, if yes -> keep. If not, empty cells in row
-def check_percentage(str):
-    wb = openpyxl.load_workbook(filename=str)
+def check_percentage(string):
+    wb = openpyxl.load_workbook(filename=string)
     sheet = wb['Sheet1']
     row = sheet.max_row
     column = sheet.max_column
@@ -206,7 +220,7 @@ def check_percentage(str):
             for y in range(1, column):
                 sheet.cell(row=x, column=y).value = None
 
-    wb.save(str)
+    wb.save(string)
+
 
 tkinter_window()
-# check_percentage('Control_Group.xlsx')
