@@ -194,8 +194,10 @@ This project is to help phD Researchers get more convenient when calculating lar
 
     window.mainloop()
  ```
+ 
  - In this project, we will use ```ttk.Notebook(window)``` to build tabs for the GUI: 
    - To talk about step 2 of the project, to begin with, we will mention ```tab1``` first. This tab is to execute the ```readData``` function above. These lines demonstrate the work:
+   
    ```
     tab1 = ttk.Frame(tab_control)
     tab_control.add(tab1, text="Calculate Step 1")
@@ -221,10 +223,13 @@ This project is to help phD Researchers get more convenient when calculating lar
    <p align="center">
     <img src="First_Tab.png" width=500>
    </p>
+   
    - Now, ```clicked()``` function specifies the event after you click on button ```Generate```. In this project's step 1, as you can see, it will generate a new data in ```calculated_data_2.xlsx``` file:
+   
    <p align="center">
     <img src="Generate_Step_1.png" width=800>
    </p>
+   
 # B. Separate each group in a new Excel file
  - Now we are done with generating new data, we might as well want to separate just to be more comfortable when working with each group.
  ## Step 1: Implement a ```separate_group()``` function
