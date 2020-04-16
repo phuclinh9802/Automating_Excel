@@ -3,9 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="cca0e643-88b7-405b-9493-2f76360c0818" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calculated_data.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/calculated_data_1.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/calculated_data_2.xlsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Control_Group.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Control_Group.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calculated_data_2.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/calculated_data_2.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,7 +32,13 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
   </component>
   <component name="RunManager">
     <configuration name="data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -105,10 +110,10 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="229" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1586744702628" />
-    <state x="399" y="282" key="com.intellij.ide.util.TipDialog" timestamp="1586875097117">
+    <state x="399" y="282" key="com.intellij.ide.util.TipDialog" timestamp="1586961404197">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="399" y="282" key="com.intellij.ide.util.TipDialog/0.0.1440.900@0.0.1440.900" timestamp="1586875097117" />
+    <state x="399" y="282" key="com.intellij.ide.util.TipDialog/0.0.1440.900@0.0.1440.900" timestamp="1586961404197" />
     <state x="399" y="282" key="com.intellij.ide.util.TipDialog/0.23.1440.827@0.23.1440.827" timestamp="1586626804196" />
     <state x="385" y="196" width="670" height="676" key="search.everywhere.popup" timestamp="1586877673594">
       <screen x="0" y="0" width="1440" height="900" />

@@ -152,7 +152,7 @@ def tkinter_window():
 
     btn_2 = Button(tab2, text="Generate", command=separate)
     btn_2.pack(padx=5, pady=5)
-
+    #
     # tab 3 - check percentage
     lbl_3 = Label(tab3, text="Group Name")
     lbl_3.pack(padx=2, pady=2)
