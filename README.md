@@ -302,4 +302,68 @@ def separating_group(table, string):
    
    - Now we are done with Step 2, let's move on to the last step of the project!
  # C. Check the percentage of the appearance of data and update file
- 
+ ## Step 1: Implementing ```check_percentage()``` function to certify the percentage existence of the data in a particular row:
+ - Particularly, if the data in one row exists more than 65% of the whole row. For instance, if there is only 1 empty cell in a row out of 5 column, then we do not have to do anything. However, if the empty cells are more than 1, so the appearance of the data will be 3 out of 5, which is 60% < 65%. Then, the whole row will be reset. In other words, the cells will be changed to empty and the ```count``` column will be reset to 0. Here is the code:
+ ```
+ # check if over 65%, if yes -> keep. If not, empty cells in row
+ def check_percentage(string):
+    wb = openpyxl.load_workbook(filename=string)
+    sheet = wb['Sheet1']
+    row = sheet.max_row
+    column = sheet.max_column
+    for x in range(1, row + 1):
+        if sheet.cell(row=x, column=6).value/5.0 < 0.65:
+            sheet.cell(row=x, column=6).value = 0
+            for y in range(1, column):
+                sheet.cell(row=x, column=y).value = None
+
+    wb.save(string)
+ ```
+ - In this function, we used ```openpyxl``` library to open the Excel Workbook (```openpyxl.load_workbook(filename=string)```). 
+ - Moving on to the for loop, we want to use ```if``` statement to check if the appearance of data in a row exceeds 65% or not.
+ - Finally, we save the updated workbook using ```wb.save(string)```.
+ - The function will be implemented in ```tkinter``` window, which is the next step!!!
+ ## Step 2: Add the ```Check Percentage``` tab to the tkinter window:
+ ```
+ # tab 3 - check percentage
+    lbl_3 = Label(tab3, text="Group Name")
+    lbl_3.pack(padx=2, pady=2)
+
+    txt_3 = Entry(tab3, width=40)
+    txt_3.pack(padx=2,pady=2)
+
+    def check():
+        text = txt_3.get()
+        res = "Perfect! The file is being processed."
+        failed = "Either the group does not exist or the file have not been created. Please try again."
+        if text == "Control":
+            check_percentage("Control_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "Diabetes":
+            check_percentage("Diabetes_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "Diabetes+Insulin":
+            check_percentage("Diabetes_Insulin_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        else:
+            messagebox.showinfo('Failed!', failed)
+
+    btn_3 = Button(tab3, text="Generate", command=check)
+    btn_3.pack(padx=5, pady=5)
+ ```
+ - Skipping to the ```check()``` function to process the ```btn_3```, as we can see, we are using ```if elif else``` statement to check the legitimacy of the group name. If exists, we can update the file associated to the group name. For instance, if we type ```Control``` in the ```Entry```, the program will generate, i.e update the existing xlsx file ```Control_Group.xlsx``` to empty rows using ```check_percentage()``` function.
+ - Following these lines of code, similarly to first and second tab above, we have something like this:
+ <p align="center">
+    <img src="Step_3.png" width=500>
+   </p>
+   
+ - After clicking the ```Generate``` button, this event will happen:
+ <p align="center">
+    <img src="Generate_Step_3.png" width=800>
+   </p>
+   
+ - As you can see in line 78 of the ```Control_Group.xlsx``` file, the line originally exists 1 data, hence ```count = 1```. After step 3, the data is set to empty, and ```count``` column is reset to 0. 
+ - We are done!!!!
+
+   
+  
