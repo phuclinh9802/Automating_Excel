@@ -369,7 +369,7 @@ def separating_group(table, string):
    
  - As you can see in line 78 of the ```Control_Group.xlsx``` file, the line originally exists 1 data, hence ```count = 1```. After step 3, the data is set to empty, and ```count``` column is reset to 0. 
  
- #D. Saving data to ```csv``` file
+ # D. Saving data to ```csv``` file
 
    
   
