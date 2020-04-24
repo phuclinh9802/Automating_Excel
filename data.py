@@ -269,4 +269,8 @@ def save_csv(list1, list2, list3):
 
 #tkinter_window()
 
+table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
+
+print(final_separated_table(table))
+
 
