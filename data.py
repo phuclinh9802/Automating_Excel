@@ -5,6 +5,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import timeit
 import xlsxwriter
+import csv
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
@@ -117,6 +118,9 @@ def tkinter_window():
     tab3 = ttk.Frame(tab_control)
     tab_control.add(tab3, text="Check Percentage")
 
+    tab4 = ttk.Frame(tab_control)
+    tab_control.add(tab4, text="Final Data")
+
     # tab 1
     lbl = Label(tab1, text="Excel File Name")
     lbl.pack(padx=2, pady=2)
@@ -179,6 +183,24 @@ def tkinter_window():
     btn_3 = Button(tab3, text="Generate", command=check)
     btn_3.pack(padx=5, pady=5)
 
+    # tab 3 - check percentage
+    lbl_3 = Label(tab4, text="Generate Final Data")
+    lbl_3.pack(padx=2, pady=2)
+
+    def final():
+
+        if check_percentage("Control_Group.xlsx") is None:
+            messagebox.showerror(message="Please generate the Control data first in tab 3")
+        elif check_percentage("Diabetes_Group.xlsx") is None:
+            messagebox.showerror(message="Please generate the Diabetes data first in tab 3")
+        elif check_percentage("Diabetes_Insulin_Group.xlsx") is None:
+            messagebox.showerror(message="Please generate the Diabetes+Insulin data first in tab 3")
+        else:
+            save_csv(check_percentage("Control_Group.xlsx"), check_percentage("Diabetes_Group.xlsx"), check_percentage("Diabetes_Insulin_Group.xlsx"))
+
+
+    btn_4 = Button(tab4, text="Generate", command=final)
+    btn_4.pack(padx=5, pady=5)
     window.mainloop()
 
 
@@ -207,6 +229,14 @@ def separating_group(table, string):
     tab.append(count_table)
     return tab
 
+def final_separated_table(table):
+    for x in range(len(table[0])):
+        if table[5][x]/5.0 < 0.65:
+            table[5][x] = 0
+            for y in range(0, len(table) - 1):
+                table[y][x] = None
+
+    return table
 
 # check if over 65%, if yes -> keep. If not, empty cells in row
 def check_percentage(string):
@@ -223,4 +253,20 @@ def check_percentage(string):
     wb.save(string)
 
 
-tkinter_window()
+def save_csv(list1, list2, list3):
+    table = []
+    for x in range(list1):
+        table.append(list1[x])
+    for x in range(list2):
+        table.append(list2[x])
+    for x in range(list3):
+        table.append(list3[x])
+
+    with open('final_data.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(table)
+
+
+#tkinter_window()
+
+
