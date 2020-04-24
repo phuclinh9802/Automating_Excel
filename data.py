@@ -70,6 +70,19 @@ def readData(str):
 
     return table
 
+final_table = []
+
+# produce table only with new count (not generating new xlsx file)
+def produce_table_only(string):
+    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
+    separated_table = separating_group(original_table, string)
+    final_data = final_separated_table(separated_table)
+
+    for x in range(0, len(final_data)):
+        final_table.append(final_data[x])
+
+    return final_data
+
 
 # produce a new data with count
 def produce_count_data(string):
@@ -196,7 +209,7 @@ def tkinter_window():
         elif check_percentage("Diabetes_Insulin_Group.xlsx") is None:
             messagebox.showerror(message="Please generate the Diabetes+Insulin data first in tab 3")
         else:
-            save_csv(check_percentage("Control_Group.xlsx"), check_percentage("Diabetes_Group.xlsx"), check_percentage("Diabetes_Insulin_Group.xlsx"))
+
 
 
     btn_4 = Button(tab4, text="Generate", command=final)
@@ -237,6 +250,7 @@ def final_separated_table(table):
                 table[y][x] = None
 
     return table
+
 
 # check if over 65%, if yes -> keep. If not, empty cells in row
 def check_percentage(string):
