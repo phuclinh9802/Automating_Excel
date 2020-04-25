@@ -38,11 +38,27 @@ def new_file_calculated(lists, cols):
     workbook.close()
 
 
-# Read group data
+# Read group data only: 1. Control 2. Diabetes 3. Diabetes+Insulin
 def read_group_data(str):
+    wb = xlrd.open_workbook(str)
+    ws = wb.sheet_by_index(0)
+    rows = ws.nrows
+    cols = ws.ncols
+    table = []
+    count = 0
+
+    for y in range(cols):
+        record = []
+        for x in range(rows):
+            record.append(ws.cell(x,y).value)
+        new_record = record
+        table.append(new_record)
+
+    return table
+
 
 # Read the data and calculate
-def readData(str):
+def read_data(str):
     # Load excel file to calculate
     wb = xlrd.open_workbook(str)
     ws = wb.sheet_by_index(0)
@@ -75,16 +91,14 @@ def readData(str):
     return table
 
 
-
 # produce table only with new count (not generating new xlsx file)
 def produce_table_only(string):
-
-
+    return
 
 
 # produce a new data with count
 def produce_count_data(string):
-    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
+    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")
     separated_table = separating_group(original_table, string)
 
     if string == "Control":
@@ -142,7 +156,7 @@ def tkinter_window():
     # generate a new xlsx file
     def clicked():
         res = "File has been entered."
-        readData(txt.get())
+        read_data(txt.get())
         messagebox.showinfo('Success!', res)
 
     btn = Button(tab1, text="Generate", command=clicked)
@@ -280,6 +294,8 @@ def save_csv(table):
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
-print(produce_table_only("Control_Group.xlsx"))
+print(read_group_data("Control_Group.xlsx")[0][0])
+print(read_group_data("Control_Group.xlsx")[0][12811])
+
 
 
