@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cca0e643-88b7-405b-9493-2f76360c0818" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -79,10 +80,11 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="458" y="204" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1587396812180">
-      <screen x="0" y="0" width="1440" height="900" />
+    <state x="458" y="211" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1587779126546">
+      <screen x="0" y="23" width="1440" height="829" />
     </state>
     <state x="458" y="204" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1440.900@0.0.1440.900" timestamp="1587396812180" />
+    <state x="458" y="211" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1440.829@0.23.1440.829" timestamp="1587779126546" />
     <state width="1419" height="200" key="GridCell.Tab.0.bottom" timestamp="1587704060858">
       <screen x="0" y="23" width="1440" height="829" />
     </state>

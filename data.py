@@ -37,6 +37,10 @@ def new_file_calculated(lists, cols):
         worksheet.write_column(0, x, lists[x])
     workbook.close()
 
+
+# Read group data
+def read_group_data(str):
+
 # Read the data and calculate
 def readData(str):
     # Load excel file to calculate
@@ -74,13 +78,8 @@ def readData(str):
 
 # produce table only with new count (not generating new xlsx file)
 def produce_table_only(string):
-    original_table = readData("Raw_data_and_steps_Diabetes_data.xlsx")
-    separated_table = separating_group(original_table, string)
-    final_data = final_separated_table(separated_table)
 
 
-
-    return final_data
 
 
 # produce a new data with count
@@ -117,7 +116,7 @@ def tkinter_window():
     # frame = Frame(window)
     window.title("Calculating Metabolomic Data")
 
-    window.geometry('500x200')
+    window.geometry('700x200')
 
     tab_control = ttk.Notebook(window)
     tab1 = ttk.Frame(tab_control)
@@ -201,29 +200,20 @@ def tkinter_window():
 
     def final():
         final_table = []
-        if check_percentage("Control_Group.xlsx") is None:
-            messagebox.showerror(message="Please generate the Control data first in tab 3")
-        elif check_percentage("Diabetes_Group.xlsx") is None:
-            messagebox.showerror(message="Please generate the Diabetes data first in tab 3")
-        elif check_percentage("Diabetes_Insulin_Group.xlsx") is None:
-            messagebox.showerror(message="Please generate the Diabetes+Insulin data first in tab 3")
-        else:
-            # produce data after checking percentage in tables
-            control_table = produce_table_only("Control_Group.xlsx")
-            diabetes_table = produce_table_only("Diabetes_Group.xlsx")
-            diabetes_insulin_table = produce_table_only("Diabetes_Insulin_Group.xlsx")
+        # produce data after checking percentage in tables
+        control_table = produce_table_only("Control_Group.xlsx")
+        diabetes_table = produce_table_only("Diabetes_Group.xlsx")
+        diabetes_insulin_table = produce_table_only("Diabetes_Insulin_Group.xlsx")
 
-            # append to a big table
-            for x in range(0, len(control_table)):
-                final_table.append(control_table[x])
-            for x in range(0, len(diabetes_table)):
-                final_table.append(diabetes_table[x])
-            for x in range(0, len(diabetes_insulin_table)):
-                final_table.append(diabetes_insulin_table[x])
+        # append to a big table
+        for x in range(0, len(control_table)):
+            final_table.append(control_table[x])
+        for x in range(0, len(diabetes_table)):
+            final_table.append(diabetes_table[x])
+        for x in range(0, len(diabetes_insulin_table)):
+            final_table.append(diabetes_insulin_table[x])
 
-
-
-
+        save_csv(final_table)
 
     btn_4 = Button(tab4, text="Generate", command=final)
     btn_4.pack(padx=5, pady=5)
@@ -280,24 +270,16 @@ def check_percentage(string):
     wb.save(string)
 
 
-def save_csv(list1, list2, list3):
-    table = []
-    for x in range(list1):
-        table.append(list1[x])
-    for x in range(list2):
-        table.append(list2[x])
-    for x in range(list3):
-        table.append(list3[x])
-
+def save_csv(table):
     with open('final_data.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(table)
 
 
-#tkinter_window()
+# tkinter_window()
 
-table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
-
-print(final_separated_table(table))
+# table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
+#
+print(produce_table_only("Control_Group.xlsx"))
 
 
