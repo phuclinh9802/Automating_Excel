@@ -218,6 +218,7 @@ def tkinter_window():
     lbl_4.pack(padx=2, pady=2)
 
     def final():
+        start = timeit.default_timer()
         final_table = []
         # produce data after checking percentage in tables
         control_table = read_group_data("Control_Group.xlsx")
@@ -233,6 +234,8 @@ def tkinter_window():
             final_table.append(diabetes_insulin_table[x])
 
         save_csv(final_table)
+        stop = timeit.default_timer()
+        print('Time: ', stop - start)
 
     btn_4 = Button(tab4, text="Generate", command=final)
     btn_4.pack(padx=5, pady=5)
