@@ -6,6 +6,8 @@ from tkinter import ttk
 import timeit
 import xlsxwriter
 import csv
+from itertools import zip_longest
+
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
@@ -93,6 +95,8 @@ def read_data(str):
 
 # produce table only with new count (not generating new xlsx file)
 def produce_table_only(string):
+    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")
+    separated_table = separating_group(original_table, string)
     return
 
 
@@ -215,16 +219,16 @@ def tkinter_window():
     def final():
         final_table = []
         # produce data after checking percentage in tables
-        control_table = produce_table_only("Control_Group.xlsx")
-        diabetes_table = produce_table_only("Diabetes_Group.xlsx")
-        diabetes_insulin_table = produce_table_only("Diabetes_Insulin_Group.xlsx")
+        control_table = read_group_data("Control_Group.xlsx")
+        diabetes_table = read_group_data("Diabetes_Group.xlsx")
+        diabetes_insulin_table = read_group_data("Diabetes_Insulin_Group.xlsx")
 
         # append to a big table
-        for x in range(0, len(control_table)):
+        for x in range(len(control_table)):
             final_table.append(control_table[x])
-        for x in range(0, len(diabetes_table)):
+        for x in range(len(diabetes_table)):
             final_table.append(diabetes_table[x])
-        for x in range(0, len(diabetes_insulin_table)):
+        for x in range(len(diabetes_insulin_table)):
             final_table.append(diabetes_insulin_table[x])
 
         save_csv(final_table)
@@ -285,17 +289,18 @@ def check_percentage(string):
 
 
 def save_csv(table):
+    export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(table)
+        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+        writer.writerow(("C", "C", "C", "C", "C", "Count Blk.", "D", "D", "D", "D", "D", "Count Blk.", "D+I", "D+I", "D+I", "D+I", "D+I", "Count Blk."))
+        writer.writerows(export_data)
+    file.close()
 
-
-# tkinter_window()
+tkinter_window()
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
-print(read_group_data("Control_Group.xlsx")[0][0])
-print(read_group_data("Control_Group.xlsx")[0][12811])
+
 
 
 
