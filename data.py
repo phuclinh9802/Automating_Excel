@@ -51,10 +51,11 @@ def read_group_data(str):
 
     for y in range(cols):
         record = []
-        for x in range(rows):
-            record.append(ws.cell(x,y).value)
-        new_record = record
-        table.append(new_record)
+        if y < cols - 1:
+            for x in range(rows):
+                record.append(ws.cell(x,y).value)
+            new_record = record
+            table.append(new_record)
 
     return table
 
@@ -292,7 +293,7 @@ def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
         writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        writer.writerow(("C", "C", "C", "C", "C", "Count Blk.", "D", "D", "D", "D", "D", "Count Blk.", "D+I", "D+I", "D+I", "D+I", "D+I", "Count Blk."))
+        writer.writerow(("C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D+I", "D+I", "D+I", "D+I", "D+I"))
         writer.writerows(export_data)
     file.close()
 

@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cca0e643-88b7-405b-9493-2f76360c0818" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Control_Group.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Control_Group.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Diabetes_Group.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Diabetes_Group.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Diabetes_Insulin_Group.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Diabetes_Insulin_Group.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/~$Control_Group.xlsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
