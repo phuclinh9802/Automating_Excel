@@ -264,7 +264,9 @@ def separating_group(table, string):
                 count += 1
         count_table.append(count)
 
+    # appending the count table to count the appearance of data each row
     tab.append(count_table)
+
     return tab
 
 def final_separated_table(table):
@@ -291,7 +293,7 @@ def check_percentage(string):
 
     wb.save(string)
 
-
+# save to csv file
 def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
@@ -299,6 +301,26 @@ def save_csv(table):
         writer.writerow(("C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D+I", "D+I", "D+I", "D+I", "D+I"))
         writer.writerows(export_data)
     file.close()
+
+
+# average of group data
+def calculate_average(string):
+    wb = openpyxl.load_workbook(filename=string)
+    sheet = wb['Sheet1']
+    row = sheet.max_row
+    column = sheet.max_column
+    col = []
+    for x in range(1, row + 1):
+        average = 0.0
+        for y in range(1, column - 1):
+            average = average + sheet.cell(row=x, column=y).value
+        average = average / 5.0
+        col.append(average)
+
+    wb.save(string)
+
+    return col
+
 
 tkinter_window()
 
