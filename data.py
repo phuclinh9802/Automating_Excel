@@ -81,7 +81,10 @@ def read_data(str):
         for x in range(rows):
             if 0 < y < 16:
                 if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 16).value, float):
-                    record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
+                    if ws.cell(x, y).value - ws.cell(x, 16).value >=0:
+                        record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
+                    else:
+                        record.append(ws.cell(x,y).value)
                 else:
                     record.append(ws.cell(x, y).value)
             else:
@@ -302,7 +305,7 @@ def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
         writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        writer.writerow(("C", "C", "C", "C", "C", "D", "D", "D", "D", "D", "D+I", "D+I", "D+I", "D+I", "D+I"))
+        writer.writerow(("C", "C", "C", "C", "C", "Avg", "D", "D", "D", "D", "D", "Avg", "D+I", "D+I", "D+I", "D+I", "D+I", "Avg"))
         writer.writerows(export_data)
     file.close()
 
@@ -327,9 +330,9 @@ def calculate_average(string):
     return col
 
 
-#tkinter_window()
+tkinter_window()
 
-print(read_group_data("Control_Group.xlsx")[5])
+# print(read_group_data("Control_Group.xlsx")[5])
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
