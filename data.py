@@ -48,6 +48,7 @@ def read_group_data(str):
     cols = ws.ncols
     table = []
     count = 0
+    average_column = calculate_average(str)
 
     for y in range(cols):
         record = []
@@ -56,6 +57,9 @@ def read_group_data(str):
                 record.append(ws.cell(x,y).value)
             new_record = record
             table.append(new_record)
+
+    # calculate average of group data in each row using openpyxl
+    table.append(average_column)
 
     return table
 
@@ -312,8 +316,9 @@ def calculate_average(string):
     col = []
     for x in range(1, row + 1):
         average = 0.0
-        for y in range(1, column - 1):
-            average = average + sheet.cell(row=x, column=y).value
+        for y in range(1, column):
+            if sheet.cell(row=x, column=y).value is not None:
+                average = average + sheet.cell(row=x, column=y).value
         average = average / 5.0
         col.append(average)
 
@@ -322,7 +327,9 @@ def calculate_average(string):
     return col
 
 
-tkinter_window()
+#tkinter_window()
+
+print(read_group_data("Control_Group.xlsx")[5])
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
