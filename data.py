@@ -84,7 +84,7 @@ def read_data(str):
                     if ws.cell(x, y).value - ws.cell(x, 16).value >=0:
                         record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
                     else:
-                        record.append(ws.cell(x,y).value)
+                        record.append(None)
                 else:
                     record.append(ws.cell(x, y).value)
             else:
@@ -330,13 +330,28 @@ def calculate_average(string):
     return col
 
 
-tkinter_window()
+#tkinter_window()
 
 # print(read_group_data("Control_Group.xlsx")[5])
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
 
+import random
+import string
+
+
+# defining function for random
+# string id with parameter
+def ran_gen(size, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
+
+
+# function call for random string
+# generation with size 8 and string
+
+for x in range(5):
+    print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
 
 
 
