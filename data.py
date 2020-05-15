@@ -7,10 +7,15 @@ import timeit
 import xlsxwriter
 import csv
 from itertools import zip_longest
+import random
+import string
+import numpy as np
+import scipy
 
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
+from scipy.stats import sem, t
 
 
 def replace_empty(lists):
@@ -330,15 +335,73 @@ def calculate_average(string):
     return col
 
 
-#tkinter_window()
+# change back empty cells to 0
+def change_to_zero(table):
+    for x in range(table):
+        for y in range(table[0]):
+            if (table[x][y] is None):
+                table[x][y] = 0;
+# p value to compare 2 groups
+def get_p_value(str1, str2):
+    # read data from specific groups
+    table_1 = read_group_data(str1);
+    table_2 = read_group_data(str2);
+
+    # change None to 0 cell
+    change_to_zero(table_1);
+    change_to_zero(table_2);
+
+    # p value calculation
+    p_col = []
+
+    # get each row
+    data_1 = get_row(table_1)
+    data_2 = get_row(table_2)
+
+    for x in range(len(data_1)):
+        # get mean
+        mean1, mean2 = np.mean(data_1[x]), np.mean(data_2[x])
+        # get std error
+        se1, se2 = sem(data_1[x]), sem(data_2[x])
+        # standard error on the difference between the samples
+        sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
+        # calculate T Statistic
+        t_stat = (mean1 - mean2) / sed
+        # degrees of freedom
+        df = len(data_1[x]) + len(data_2[x]) - 2
+        # calculate the p-value
+        p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
+        p_col.append(p)
+
+    return p_col
+
+
+#get std
+def get_row(table):
+    tab = []
+    for x in range(len(table[0])):
+        rec = []
+        for y in range(len(table)):
+            rec.append(table[y][x])
+        new_rec = rec
+        tab.append(new_rec)
+
+    return tab
+
+
+
+
+
+
+
+tkinter_window()
 
 # print(read_group_data("Control_Group.xlsx")[5])
 
 # table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
 #
 
-import random
-import string
+
 
 
 # defining function for random
@@ -354,4 +417,4 @@ for x in range(5):
     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
 
 
-
+# test p value calculation
