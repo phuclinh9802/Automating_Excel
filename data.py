@@ -370,7 +370,7 @@ def get_p_value(str1, str2):
         # degrees of freedom
         df = len(data_1[x]) + len(data_2[x]) - 2
         # calculate the p-value
-        p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
+        p = (1.0 - t.cdf(abs(t_stat), df))
         p_col.append(p)
 
     return p_col
@@ -394,7 +394,7 @@ def get_row(table):
 
 
 
-tkinter_window()
+#tkinter_window()
 
 # print(read_group_data("Control_Group.xlsx")[5])
 
@@ -406,15 +406,35 @@ tkinter_window()
 
 # defining function for random
 # string id with parameter
-def ran_gen(size, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for x in range(size))
-
-
-# function call for random string
-# generation with size 8 and string
-
-for x in range(5):
-    print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
+# def ran_gen(size, chars=string.ascii_uppercase + string.digits):
+#     return ''.join(random.choice(chars) for x in range(size))
+#
+#
+# # function call for random string
+# # generation with size 8 and string
+#
+# for x in range(5):
+#     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
 
 
 # test p value calculation
+def test_p(data_1, data_2):
+    mean1, mean2 = 0.132093369, 2144.554524
+    # get std error
+    se1, se2 = sem(data_1), sem(data_2)
+    # standard error on the difference between the samples
+    sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
+    # calculate T Statistic
+    t_stat = (mean1 - mean2) / sed
+    # degrees of freedom
+    df = len(data_1) + len(data_2) - 2
+    # calculate the p-value
+    p = (1.0 - t.cdf(abs(t_stat), df))
+    return p
+
+
+
+data_1 = [0.166540451, 0,0,0.377697269,0.116229125]
+data_2 = [975.883319, 1180.107259, 3619.315074,	2162.440001,2785.026967]
+p = test_p(data_1, data_2)
+print(p)
