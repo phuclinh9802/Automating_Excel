@@ -45,9 +45,28 @@ def new_file_calculated(lists, cols):
         worksheet.write_column(0, x, lists[x])
     workbook.close()
 
-
-# Read group data only: 1. Control 2. Diabetes 3. Diabetes+Insulin
+# Read group data only
 def read_group_data(str):
+    wb = xlrd.open_workbook(str)
+    ws = wb.sheet_by_index(0)
+    rows = ws.nrows
+    cols = ws.ncols
+    table = []
+    count = 0
+
+    for y in range(cols):
+        record = []
+        if y < cols - 1:
+            for x in range(rows):
+                record.append(ws.cell(x, y).value)
+            new_record = record
+            table.append(new_record)
+
+
+    return table
+
+# Read group data with average: 1. Control 2. Diabetes 3. Diabetes+Insulin
+def read_group_data_with_average(str):
     wb = xlrd.open_workbook(str)
     ws = wb.sheet_by_index(0)
     rows = ws.nrows
@@ -237,9 +256,9 @@ def tkinter_window():
         start = timeit.default_timer()
         final_table = []
         # produce data after checking percentage in tables
-        control_table = read_group_data("Control_Group.xlsx")
-        diabetes_table = read_group_data("Diabetes_Group.xlsx")
-        diabetes_insulin_table = read_group_data("Diabetes_Insulin_Group.xlsx")
+        control_table = read_group_data_with_average("Control_Group.xlsx")
+        diabetes_table = read_group_data_with_average("Diabetes_Group.xlsx")
+        diabetes_insulin_table = read_group_data_with_average("Diabetes_Insulin_Group.xlsx")
 
         # append to a big table
         for x in range(len(control_table)):
@@ -261,7 +280,7 @@ def tkinter_window():
     lbl_5.pack(padx=2, pady=2)
 
     def p_val():
-
+        return
 
     btn_5 = Button(tab5, text="Generate", command=p_val)
     btn_5.pack(padx=5, pady=5)
@@ -382,13 +401,74 @@ def get_p_value(str1, str2):
 
     return p_col
 
+# combine p value with 2 group data
+def produce_combine_p(str1, str2):
+    # initialize table to combine data
+    group_1 = ""
+    group_2 = ""
+    if str1 == "Control_Group.xlsx":
+        group_1 = "C"
+    if str2 == "Control_Group.xlsx":
+        group_2 = "C"
+    if str1 == "Diabetes_Group.xlsx":
+        group_1 = "DM1"
+    if str2 == "Diabetes_Group.xlsx":
+        group_2 = "DM1"
+    if str1 == "Diabetes_Insulin_Group.xlsx":
+        group_1 = "DM1+I"
+    if str2 == "Diabetes_Insulin_Group.xlsx":
+        group_2 = "DM1+I"
+
+    table = []
+    # read data from specific groups
+    table_1 = read_group_data(str1)
+    table_2 = read_group_data(str2)
+
+    # append each column into the table
+    # str1 data
+    for x in range(len(table_1)):
+        # insert name of group at the first row
+        table_1[x].insert(0, group_1)
+        table.append(table_1[x])
+
+    # str1 average data
+    avg_1 = calculate_average(str1)
+    avg_1.insert(0, "AVG")
+    table.append(avg_1)
+
+    # str2 data
+    for x in range(len(table_2)):
+        table_2[x].insert(0, group_2)
+        table.append(table_2[x])
+
+    # str2 average data
+    avg_2 = calculate_average(str2)
+    avg_2.insert(0, "AVG")
+    table.append(avg_2)
+
+    # change None to 0 cell
+    change_to_zero(table_1)
+    change_to_zero(table_2)
+
+    # append p_value column
+    p_col = get_p_value(str1, str2)
+    p_col.insert(0, "p_value")
+    table.append(p_col)
+
+    workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
+    worksheet = workbook.add_worksheet()
+    for x in range(len(table)):
+        worksheet.write_column(0, x, table[x])
+    workbook.close()
+
+
 
 # get std
 def get_row(table):
     tab = []
     for x in range(len(table[0])):
         rec = []
-        for y in range(len(table) - 1):
+        for y in range(len(table)):
             rec.append(table[y][x])
         new_rec = rec
         tab.append(new_rec)
@@ -446,4 +526,6 @@ def test_p(data_1, data_2):
 # print(p)
 
 # get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx")
-print(get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx"))
+# print(get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx"))
+produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx")
+
