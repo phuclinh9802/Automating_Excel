@@ -11,6 +11,7 @@ import random
 import string
 import numpy as np
 import scipy
+import math
 
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
@@ -163,6 +164,9 @@ def tkinter_window():
     tab4 = ttk.Frame(tab_control)
     tab_control.add(tab4, text="Final Data")
 
+    tab5 = ttk.Frame(tab_control)
+    tab_control.add(tab5, text="Get p value")
+
     # tab 1
     lbl = Label(tab1, text="Excel File Name")
     lbl.pack(padx=2, pady=2)
@@ -251,6 +255,16 @@ def tkinter_window():
 
     btn_4 = Button(tab4, text="Generate", command=final)
     btn_4.pack(padx=5, pady=5)
+
+    # tab 5 - get p value
+    lbl_5 = Label(tab5, text="Get p value")
+    lbl_5.pack(padx=2, pady=2)
+
+    def p_val():
+
+
+    btn_5 = Button(tab5, text="Generate", command=p_val)
+    btn_5.pack(padx=5, pady=5)
     window.mainloop()
 
 
@@ -337,15 +351,19 @@ def calculate_average(string):
 
 # change back empty cells to 0
 def change_to_zero(table):
-    for x in range(table):
-        for y in range(table[0]):
-            if (table[x][y] is None):
-                table[x][y] = 0;
+    # print(len(table))
+    # print(len(table[0]))
+    for x in range(len(table)):
+        for y in range(len(table[0])):
+            if table[x][y] == "":
+                table[x][y] = 0
+
+
 # p value to compare 2 groups
 def get_p_value(str1, str2):
     # read data from specific groups
-    table_1 = read_group_data(str1);
-    table_2 = read_group_data(str2);
+    table_1 = read_group_data(str1)
+    table_2 = read_group_data(str2)
 
     # change None to 0 cell
     change_to_zero(table_1);
@@ -357,31 +375,20 @@ def get_p_value(str1, str2):
     # get each row
     data_1 = get_row(table_1)
     data_2 = get_row(table_2)
-
+    # print(test_p(data_1[0], data_2[0]))
     for x in range(len(data_1)):
-        # get mean
-        mean1, mean2 = np.mean(data_1[x]), np.mean(data_2[x])
-        # get std error
-        se1, se2 = sem(data_1[x]), sem(data_2[x])
-        # standard error on the difference between the samples
-        sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
-        # calculate T Statistic
-        t_stat = (mean1 - mean2) / sed
-        # degrees of freedom
-        df = len(data_1[x]) + len(data_2[x]) - 2
-        # calculate the p-value
-        p = (1.0 - t.cdf(abs(t_stat), df))
+        p = test_p(data_1[x], data_2[x])
         p_col.append(p)
 
     return p_col
 
 
-#get std
+# get std
 def get_row(table):
     tab = []
     for x in range(len(table[0])):
         rec = []
-        for y in range(len(table)):
+        for y in range(len(table) - 1):
             rec.append(table[y][x])
         new_rec = rec
         tab.append(new_rec)
@@ -389,12 +396,7 @@ def get_row(table):
     return tab
 
 
-
-
-
-
-
-#tkinter_window()
+# tkinter_window()
 
 # print(read_group_data("Control_Group.xlsx")[5])
 
@@ -419,11 +421,15 @@ def get_row(table):
 
 # test p value calculation
 def test_p(data_1, data_2):
-    mean1, mean2 = 0.132093369, 2144.554524
+    mean1 = np.mean(data_1)
+    mean2 = np.mean(data_2)
     # get std error
-    se1, se2 = sem(data_1), sem(data_2)
+    se1 = sem(data_1)
+    se2 = sem(data_2)
     # standard error on the difference between the samples
     sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
+    if sed == 0:
+        return None
     # calculate T Statistic
     t_stat = (mean1 - mean2) / sed
     # degrees of freedom
@@ -433,8 +439,11 @@ def test_p(data_1, data_2):
     return p
 
 
+#
+# data_1 = [0.166540451, 0,0,0.377697269,0.116229125]
+# data_2 = [975.883319, 1180.107259, 3619.315074,	2162.440001,2785.026967]
+# p = test_p(data_1, data_2)
+# print(p)
 
-data_1 = [0.166540451, 0,0,0.377697269,0.116229125]
-data_2 = [975.883319, 1180.107259, 3619.315074,	2162.440001,2785.026967]
-p = test_p(data_1, data_2)
-print(p)
+# get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx")
+print(get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx"))
