@@ -45,6 +45,7 @@ def new_file_calculated(lists, cols):
         worksheet.write_column(0, x, lists[x])
     workbook.close()
 
+
 # Read group data only
 def read_group_data(str):
     wb = xlrd.open_workbook(str)
@@ -285,21 +286,40 @@ def tkinter_window():
     txt_5_2 = Entry(tab5, width=20)
     txt_5_2.pack(padx=2, pady=2)
 
+    v = IntVar()
+    radio_1 = Radiobutton(tab5, text="p value only", variable=v, value=0)
+    radio_1.pack(anchor=W)
+    radio_2 = Radiobutton(tab5, text="p and log2", variable=v, value=1)
+    radio_2.pack(anchor=W)
+
     # generate file based on entry
     def pval():
         res = "File has been generated"
         failed = "Please enter the correct group"
-        if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
-            produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx")
-            messagebox.showinfo('Success!', res)
-        elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
-            produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
-            messagebox.showinfo('Success!', res)
-        elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
-            produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
-            messagebox.showinfo('Success!', res)
-        else:
-            messagebox.showerror("Error", failed)
+        if v.get() == 0:
+            if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
+                produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            else:
+                messagebox.showerror("Error", failed)
+        if v.get() == 1:
+            if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
+                produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            else:
+                messagebox.showerror("Error", failed)
 
     btn_5 = Button(tab5, text="Generate", command=pval)
     btn_5.pack(padx=5, pady=5)
@@ -359,6 +379,7 @@ def check_percentage(string):
 
     wb.save(string)
 
+
 # save to csv file
 def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
@@ -369,7 +390,7 @@ def save_csv(table):
     file.close()
 
 
-# average of group data
+# average of group data : Control_Group.xlsx, Diabetes_Group.xlsx, Diabetes_Insulin_Group.xlsx
 def calculate_average(string):
     wb = openpyxl.load_workbook(filename=string)
     sheet = wb['Sheet1']
@@ -384,12 +405,33 @@ def calculate_average(string):
         average = average / 5.0
         col.append(average)
 
+    change_to_1(col)
     wb.save(string)
 
     return col
 
+
+# change avg column to 1 if avg element = 0
+def change_to_1(table):
+    for x in range(len(table)):
+        if table[x] == 0:
+            table[x] = 1
+
+    return table
+
+
 # calculate log_2 of average of 2 group data
 def calculate_log(str1, str2):
+    avg_1 = calculate_average(str1)
+    avg_2 = calculate_average(str2)
+
+    log_col = []
+
+    for x in range(len(avg_1)):
+        log = get_log(avg_1[x], avg_2[x])
+        log_col.append(log)
+
+    return log_col
 
 
 # change back empty cells to 0
@@ -446,22 +488,27 @@ def get_p_value(str1, str2):
     return p_col
 
 
+# test get log2
+def get_log(a1, a2):
+    return np.log2(a1) - np.log2(a2)
+
+
 # combine p value with 2 group data
-def produce_combine_p(str1, str2):
+def produce_combine_p(str1, str2, type):
     # initialize table to combine data
     group_1 = ""
     group_2 = ""
     if str1 == "Control_Group.xlsx":
         group_1 = "C"
-    if str2 == "Control_Group.xlsx":
+    elif str2 == "Control_Group.xlsx":
         group_2 = "C"
     if str1 == "Diabetes_Group.xlsx":
         group_1 = "DM1"
-    if str2 == "Diabetes_Group.xlsx":
+    elif str2 == "Diabetes_Group.xlsx":
         group_2 = "DM1"
     if str1 == "Diabetes_Insulin_Group.xlsx":
         group_1 = "DM1+I"
-    if str2 == "Diabetes_Insulin_Group.xlsx":
+    elif str2 == "Diabetes_Insulin_Group.xlsx":
         group_2 = "DM1+I"
 
     table = []
@@ -478,6 +525,7 @@ def produce_combine_p(str1, str2):
 
     # str1 average data
     avg_1 = calculate_average(str1)
+    change_to_1(avg_1)
     avg_1.insert(0, "AVG")
     table.append(avg_1)
 
@@ -488,6 +536,7 @@ def produce_combine_p(str1, str2):
 
     # str2 average data
     avg_2 = calculate_average(str2)
+    change_to_1(avg_2)
     avg_2.insert(0, "AVG")
     table.append(avg_2)
 
@@ -501,24 +550,59 @@ def produce_combine_p(str1, str2):
     table.append(p_col)
 
     # New workbook xlsx file
-    if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
-        workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(table)):
-            worksheet.write_column(0, x, table[x])
-        workbook.close()
-    elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
-        workbook = xlsxwriter.Workbook('C_DM1+I_p_value.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(table)):
-            worksheet.write_column(0, x, table[x])
-        workbook.close()
-    elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
-        workbook = xlsxwriter.Workbook('D_DM1+I_p_value.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(table)):
-            worksheet.write_column(0, x, table[x])
-        workbook.close()
+    # p value only
+    if type == 0:
+        produce_file_p_log(table, str1, str2, type)
+
+    # both p value and log
+    elif type == 1:
+        log_col = calculate_log(str1, str2)
+        str_log = "LOG2FC " + group_1 + "/" + group_2
+        log_col.insert(0, str_log)
+        table.append(log_col)
+        produce_file_p_log(table, str1, str2, type)
+
+
+# produce data in new file with p value or p value and log
+def produce_file_p_log(table, str1, str2, type):
+    if type == 0:
+        if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1+I_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('D_DM1+I_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+    if type == 1:
+        if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1+I_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('D_DM1+I_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
 
 
 # get std
@@ -536,13 +620,6 @@ def get_row(table):
 
 tkinter_window()
 
-# print(read_group_data("Control_Group.xlsx")[5])
-
-# table = [[1,2,3], [None,4,5], [None, 3,6], [3,5,6], [5,6,7], [3,5,5]]
-#
-
-
-
 
 # defining function for random
 # string id with parameter
@@ -555,17 +632,4 @@ tkinter_window()
 #
 # for x in range(5):
 #     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
-
-
-
-
-#
-# data_1 = [0.166540451, 0,0,0.377697269,0.116229125]
-# data_2 = [975.883319, 1180.107259, 3619.315074,	2162.440001,2785.026967]
-# p = test_p(data_1, data_2)
-# print(p)
-
-# get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx")
-# print(get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx"))
-# produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
 
