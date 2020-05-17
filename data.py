@@ -203,7 +203,7 @@ def tkinter_window():
     btn.pack(padx=5, pady=5)
 
     # tab 2
-    lbl_2 = Label(tab2, text="Group Name")
+    lbl_2 = Label(tab2, text="Group Name: Control, Diabetes, Diabetes+Insulin")
     lbl_2.pack(padx=2, pady=2)
 
     txt_2 = Entry(tab2, width=40)
@@ -223,7 +223,7 @@ def tkinter_window():
     btn_2.pack(padx=5, pady=5)
     #
     # tab 3 - check percentage
-    lbl_3 = Label(tab3, text="Group Name")
+    lbl_3 = Label(tab3, text="Group Name: Control, Diabetes, Diabetes+Insulin")
     lbl_3.pack(padx=2, pady=2)
 
     txt_3 = Entry(tab3, width=40)
@@ -276,14 +276,34 @@ def tkinter_window():
     btn_4.pack(padx=5, pady=5)
 
     # tab 5 - get p value
-    lbl_5 = Label(tab5, text="Get p value")
+    lbl_5 = Label(tab5, text="Get p value - C: Control, D: Diabetes; DI: Diabetes+Insulin")
     lbl_5.pack(padx=2, pady=2)
 
-    def p_val():
-        return
+    txt_5 = Entry(tab5, width=20)
+    txt_5.pack(padx=2, pady=2)
 
-    btn_5 = Button(tab5, text="Generate", command=p_val)
+    txt_5_2 = Entry(tab5, width=20)
+    txt_5_2.pack(padx=2, pady=2)
+
+    # generate file based on entry
+    def pval():
+        res = "File has been generated"
+        failed = "Please enter the correct group"
+        if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
+            produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
+            produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
+            produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        else:
+            messagebox.showerror("Error", failed)
+
+    btn_5 = Button(tab5, text="Generate", command=pval)
     btn_5.pack(padx=5, pady=5)
+
     window.mainloop()
 
 
@@ -313,6 +333,7 @@ def separating_group(table, string):
     tab.append(count_table)
 
     return tab
+
 
 def final_separated_table(table):
     for x in range(len(table[0])):
@@ -367,6 +388,9 @@ def calculate_average(string):
 
     return col
 
+# calculate log_2 of average of 2 group data
+def calculate_log(str1, str2):
+
 
 # change back empty cells to 0
 def change_to_zero(table):
@@ -376,6 +400,26 @@ def change_to_zero(table):
         for y in range(len(table[0])):
             if table[x][y] == "":
                 table[x][y] = 0
+
+
+# test p value calculation
+def test_p(data_1, data_2):
+    mean1 = np.mean(data_1)
+    mean2 = np.mean(data_2)
+    # get std error
+    se1 = sem(data_1)
+    se2 = sem(data_2)
+    # standard error on the difference between the samples
+    sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
+    if sed == 0:
+        return None
+    # calculate T Statistic
+    t_stat = (mean1 - mean2) / sed
+    # degrees of freedom
+    df = len(data_1) + len(data_2) - 2
+    # calculate the p-value
+    p = (1.0 - t.cdf(abs(t_stat), df))
+    return p
 
 
 # p value to compare 2 groups
@@ -400,6 +444,7 @@ def get_p_value(str1, str2):
         p_col.append(p)
 
     return p_col
+
 
 # combine p value with 2 group data
 def produce_combine_p(str1, str2):
@@ -455,12 +500,25 @@ def produce_combine_p(str1, str2):
     p_col.insert(0, "p_value")
     table.append(p_col)
 
-    workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
-    worksheet = workbook.add_worksheet()
-    for x in range(len(table)):
-        worksheet.write_column(0, x, table[x])
-    workbook.close()
-
+    # New workbook xlsx file
+    if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
+        workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(len(table)):
+            worksheet.write_column(0, x, table[x])
+        workbook.close()
+    elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+        workbook = xlsxwriter.Workbook('C_DM1+I_p_value.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(len(table)):
+            worksheet.write_column(0, x, table[x])
+        workbook.close()
+    elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+        workbook = xlsxwriter.Workbook('D_DM1+I_p_value.xlsx')
+        worksheet = workbook.add_worksheet()
+        for x in range(len(table)):
+            worksheet.write_column(0, x, table[x])
+        workbook.close()
 
 
 # get std
@@ -476,7 +534,7 @@ def get_row(table):
     return tab
 
 
-# tkinter_window()
+tkinter_window()
 
 # print(read_group_data("Control_Group.xlsx")[5])
 
@@ -499,24 +557,6 @@ def get_row(table):
 #     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
 
 
-# test p value calculation
-def test_p(data_1, data_2):
-    mean1 = np.mean(data_1)
-    mean2 = np.mean(data_2)
-    # get std error
-    se1 = sem(data_1)
-    se2 = sem(data_2)
-    # standard error on the difference between the samples
-    sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
-    if sed == 0:
-        return None
-    # calculate T Statistic
-    t_stat = (mean1 - mean2) / sed
-    # degrees of freedom
-    df = len(data_1) + len(data_2) - 2
-    # calculate the p-value
-    p = (1.0 - t.cdf(abs(t_stat), df))
-    return p
 
 
 #
@@ -527,5 +567,5 @@ def test_p(data_1, data_2):
 
 # get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx")
 # print(get_p_value("Control_Group.xlsx", "Diabetes_Group.xlsx"))
-produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx")
+# produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx")
 
