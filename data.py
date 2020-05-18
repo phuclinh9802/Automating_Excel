@@ -187,6 +187,10 @@ def tkinter_window():
     tab5 = ttk.Frame(tab_control)
     tab_control.add(tab5, text="Get p value")
 
+    tab6 = ttk.Frame(tab_control)
+    tab_control.add(tab6, text="Up/Down-regulated")
+
+
     # tab 1
     lbl = Label(tab1, text="Excel File Name")
     lbl.pack(padx=2, pady=2)
@@ -324,6 +328,88 @@ def tkinter_window():
     btn_5 = Button(tab5, text="Generate", command=pval)
     btn_5.pack(padx=5, pady=5)
 
+    # tab 6
+    lbl_6 = Label(tab6, text="Group Name: Control, Diabetes, Diabetes+Insulin")
+    lbl_6.pack(padx=2, pady=2)
+
+    b = IntVar()
+    radio_cd = Radiobutton(tab6, text="Control - Diabetes", variable=b, value=0)
+    radio_cd.pack(anchor=W)
+    radio_cdi = Radiobutton(tab6, text="Control - Diabetes+Insulin", variable=b, value=1)
+    radio_cdi.pack(anchor=W)
+    radio_ddi = Radiobutton(tab6, text="Diabetes - Diabetes+Insulin", variable=b, value=2)
+    radio_ddi.pack(anchor=W)
+
+    a = IntVar()
+    radio_up = Radiobutton(tab6, text="Up-regulated", variable=a, value=0)
+    radio_up.pack(anchor=W)
+    radio_down = Radiobutton(tab6, text="Down-regulated", variable=a, value=1)
+    radio_down.pack(anchor=W)
+
+    # generate up-regulated / down-regulated file based on radio choice
+    def up_down():
+        table = []
+        res = "Yes! You have successfully generated the file"
+        failed = "Please try again"
+        if a.get() == 0:
+            if b.get() == 0:
+                table = up_down_regulated("C_DM1_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (C x DM1).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 1:
+                up_down_regulated("C_DM1+I_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (C x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif v.get() == 2:
+                up_down_regulated("D_DM1+I_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (D x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        elif a.get() == 1:
+            if b.get() == 0:
+                table = up_down_regulated("C_DM1_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (C x DM1).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 1:
+                up_down_regulated("C_DM1+I_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (C x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 2:
+                up_down_regulated("D_DM1+I_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (D x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        else:
+            messagebox.showerror("Failed!", failed)
+
+    btn_6 = Button(tab6, text="Generate", command=up_down)
+    btn_6.pack(padx=5, pady=5)
     window.mainloop()
 
 
@@ -471,8 +557,8 @@ def get_p_value(str1, str2):
     table_2 = read_group_data(str2)
 
     # change None to 0 cell
-    change_to_zero(table_1);
-    change_to_zero(table_2);
+    change_to_zero(table_1)
+    change_to_zero(table_2)
 
     # p value calculation
     p_col = []
@@ -563,6 +649,66 @@ def produce_combine_p(str1, str2, type):
         produce_file_p_log(table, str1, str2, type)
 
 
+# decide if up-regulated or down-regulated
+def up_down_regulated(file, up_or_down):
+    table = []
+    table = read_all_data(file)
+    change_to_zero(table)
+
+    p_value_col_index = len(table) - 2
+    log_2_col_index = len(table) - 1
+
+    # keep track of index
+    i = 1
+    # if up-regulated
+    if up_or_down == 0:
+        # loop to put data to the correct list
+        # for y in range(len(table[0]) - 1):
+
+        while i < len(table[0]):
+            if table[len(table) - 2][i] == 0 and table[len(table) - 1][i] == 0:
+                for x in table:
+                    del x[i]
+            elif table[len(table) - 2][i] >= 0.05 or table[len(table) - 1][i] <= 0.5849:
+                for x in table:
+                    del x[i]
+            else:
+                i += 1
+
+    # [[2,3,4,5], [3,4,5,6], [2,4,5,6]]
+    # [[3,4,5], [4,5,6], [4,5,6]] - i = 1
+
+    # if down-regulated
+    elif up_or_down == 1:
+        # loop to put data to the correct list
+        while i < len(table[0]):
+            if table[len(table) - 2][i] == 0 and table[len(table) - 1][i] == 0:
+                for x in table:
+                    del x[i]
+            elif table[len(table) - 2][i] >= 0.05 or table[len(table) - 1][i] >= -0.5849:
+                for x in table:
+                    del x[i]
+            else:
+                i += 1
+    return table
+
+
+# convert data to table (all files can be converted)
+def read_all_data(file):
+    wb = xlrd.open_workbook(file)
+    ws = wb.sheet_by_index(0)
+    rows = ws.nrows
+    cols = ws.ncols
+    table = []
+    for y in range(cols):
+        record = []
+        for x in range(rows):
+            record.append(ws.cell(x, y).value)
+        new_record = record
+        table.append(new_record)
+
+    return table
+
 # produce data in new file with p value or p value and log
 def produce_file_p_log(table, str1, str2, type):
     if type == 0:
@@ -584,7 +730,7 @@ def produce_file_p_log(table, str1, str2, type):
             for x in range(len(table)):
                 worksheet.write_column(0, x, table[x])
             workbook.close()
-    if type == 1:
+    elif type == 1:
         if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
             workbook = xlsxwriter.Workbook('C_DM1_p_value_log2.xlsx')
             worksheet = workbook.add_worksheet()
@@ -619,8 +765,23 @@ def get_row(table):
 
 
 tkinter_window()
-
-
+# table = [[34,6,3],[34,6,3],[34,6,3], [0.02,0.03,0.5], [0.8,0.9,0.4]]
+# i = 1
+#
+# print(table[len(table) - 2][0])
+# while i < len(table[0]):
+#     if table[len(table) - 2][i] >= 0.05 and table[len(table) - 1][i] <= 0.5849:
+#         for x in table:
+#             del x[i]
+#     else:
+#         i += 1
+#
+# print(table)
+# tab = [3,6,7,4,3]
+# new_tab = tab[1:]
+# print(new_tab)
+# length = len(read_all_data("C_DM1_p_value_log2.xlsx"))
+# print(read_all_data("C_DM1_p_value_log2.xlsx")[length - 1][0])
 # defining function for random
 # string id with parameter
 # def ran_gen(size, chars=string.ascii_uppercase + string.digits):
