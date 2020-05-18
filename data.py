@@ -361,15 +361,15 @@ def tkinter_window():
                 workbook.close()
                 messagebox.showinfo("Success!", res)
             elif b.get() == 1:
-                up_down_regulated("C_DM1+I_p_value_log2.xlsx", 0)
+                table = up_down_regulated("C_DM1+I_p_value_log2.xlsx", 0)
                 workbook = xlsxwriter.Workbook('Up (C x DM1+I).xlsx')
                 worksheet = workbook.add_worksheet()
                 for x in range(len(table)):
                     worksheet.write_column(0, x, table[x])
                 workbook.close()
                 messagebox.showinfo("Success!", res)
-            elif v.get() == 2:
-                up_down_regulated("D_DM1+I_p_value_log2.xlsx", 0)
+            elif b.get() == 2:
+                table = up_down_regulated("D_DM1+I_p_value_log2.xlsx", 0)
                 workbook = xlsxwriter.Workbook('Up (D x DM1+I).xlsx')
                 worksheet = workbook.add_worksheet()
                 for x in range(len(table)):
@@ -388,7 +388,7 @@ def tkinter_window():
                 workbook.close()
                 messagebox.showinfo("Success!", res)
             elif b.get() == 1:
-                up_down_regulated("C_DM1+I_p_value_log2.xlsx", 1)
+                table = up_down_regulated("C_DM1+I_p_value_log2.xlsx", 1)
                 workbook = xlsxwriter.Workbook('Down (C x DM1+I).xlsx')
                 worksheet = workbook.add_worksheet()
                 for x in range(len(table)):
@@ -396,7 +396,7 @@ def tkinter_window():
                 workbook.close()
                 messagebox.showinfo("Success!", res)
             elif b.get() == 2:
-                up_down_regulated("D_DM1+I_p_value_log2.xlsx", 1)
+                table = up_down_regulated("D_DM1+I_p_value_log2.xlsx", 1)
                 workbook = xlsxwriter.Workbook('Down (D x DM1+I).xlsx')
                 worksheet = workbook.add_worksheet()
                 for x in range(len(table)):
@@ -651,12 +651,8 @@ def produce_combine_p(str1, str2, type):
 
 # decide if up-regulated or down-regulated
 def up_down_regulated(file, up_or_down):
-    table = []
     table = read_all_data(file)
     change_to_zero(table)
-
-    p_value_col_index = len(table) - 2
-    log_2_col_index = len(table) - 1
 
     # keep track of index
     i = 1
