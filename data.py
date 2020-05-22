@@ -259,21 +259,24 @@ def tkinter_window():
 
     def final():
         start = timeit.default_timer()
+        res = "Perfect! The file is being processed."
         final_table = []
         # produce data after checking percentage in tables
         control_table = read_group_data_with_average("Control_Group.xlsx")
         diabetes_table = read_group_data_with_average("Diabetes_Group.xlsx")
         diabetes_insulin_table = read_group_data_with_average("Diabetes_Insulin_Group.xlsx")
 
+
         # append to a big table
         for x in range(len(control_table)):
             final_table.append(control_table[x])
-        for x in range(len(diabetes_table)):
+        for x in range(1, len(diabetes_table)):
             final_table.append(diabetes_table[x])
-        for x in range(len(diabetes_insulin_table)):
+        for x in range(1, len(diabetes_insulin_table)):
             final_table.append(diabetes_insulin_table[x])
 
         save_csv(final_table)
+        messagebox.showinfo('Success!', res)
         stop = timeit.default_timer()
         print('Time: ', stop - start)
 
@@ -412,25 +415,37 @@ def tkinter_window():
     btn_6.pack(padx=5, pady=5)
     window.mainloop()
 
+# abbreviation
+def abbreviation(table, string):
+    if string == "Control":
+       table.append("C")
+    elif string == "Diabetes":
+        table.append("DM1")
+    elif string == "Diabetes+Insulin":
+        table.append("DM1+I")
 
 # separate group
 def separating_group(table, string):
     count = 0
     tab = []
+    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0]
+    slicing = slice(1, len(original_table))
+    tab.append(original_table[slicing])
 
     for y in range(len(table)):
         record = []
         if table[y][0] == string:
+            abbreviation(record, string)
             for x in range(len(table[1])):
                 if isinstance(table[y][x], float) or table[y][x] is None:
                     record.append(table[y][x])
             new_record = record
             tab.append(new_record)
 
-    count_table = []
-    for x in range(len(tab[0])):
+    count_table = ["Count"]
+    for x in range(1, len(tab[0])): # not counting first row - title row
         count = 0
-        for y in range(len(tab)):
+        for y in range(1, len(tab)): # not counting first column - m/z column
             if tab[y][x] is not None:
                 count += 1
         count_table.append(count)
@@ -457,10 +472,10 @@ def check_percentage(string):
     sheet = wb['Sheet1']
     row = sheet.max_row
     column = sheet.max_column
-    for x in range(1, row + 1):
-        if sheet.cell(row=x, column=6).value/5.0 < 0.65:
-            sheet.cell(row=x, column=6).value = 0
-            for y in range(1, column):
+    for x in range(2, row + 1):
+        if sheet.cell(row=x, column=7).value/5.0 < 0.65:
+            sheet.cell(row=x, column=7).value = 0
+            for y in range(2, column):
                 sheet.cell(row=x, column=y).value = None
 
     wb.save(string)
@@ -471,7 +486,7 @@ def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
         writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        writer.writerow(("C", "C", "C", "C", "C", "Avg", "D", "D", "D", "D", "D", "Avg", "D+I", "D+I", "D+I", "D+I", "D+I", "Avg"))
+        # writer.writerow(("m/z","C", "C", "C", "C", "C", "Avg", "D", "D", "D", "D", "D", "Avg", "D+I", "D+I", "D+I", "D+I", "D+I", "Avg"))
         writer.writerows(export_data)
     file.close()
 
@@ -483,9 +498,10 @@ def calculate_average(string):
     row = sheet.max_row
     column = sheet.max_column
     col = []
-    for x in range(1, row + 1):
+    col.append("AVG")
+    for x in range(2, row + 1):
         average = 0.0
-        for y in range(1, column):
+        for y in range(2, column):
             if sheet.cell(row=x, column=y).value is not None:
                 average = average + sheet.cell(row=x, column=y).value
         average = average / 5.0
@@ -550,11 +566,21 @@ def test_p(data_1, data_2):
     return p
 
 
+# get m/z column
+def get_mz_col():
+    return read_group_data("Control_Group.xlsx")[0]
+
+
 # p value to compare 2 groups
 def get_p_value(str1, str2):
     # read data from specific groups
     table_1 = read_group_data(str1)
+    slicing1 = slice(1, len(table_1))
+    table_1 = table_1[slicing1]
+
     table_2 = read_group_data(str2)
+    slicing2 = slice(1, len(read_group_data(str2)))
+    table_2 = table_2[slicing2]
 
     # change None to 0 cell
     change_to_zero(table_1)
@@ -598,13 +624,15 @@ def produce_combine_p(str1, str2, type):
         group_2 = "DM1+I"
 
     table = []
+
+    table.append(get_mz_col())
     # read data from specific groups
     table_1 = read_group_data(str1)
     table_2 = read_group_data(str2)
 
     # append each column into the table
     # str1 data
-    for x in range(len(table_1)):
+    for x in range(1, len(table_1)):
         # insert name of group at the first row
         table_1[x].insert(0, group_1)
         table.append(table_1[x])
@@ -616,7 +644,7 @@ def produce_combine_p(str1, str2, type):
     table.append(avg_1)
 
     # str2 data
-    for x in range(len(table_2)):
+    for x in range(1, len(table_2)):
         table_2[x].insert(0, group_2)
         table.append(table_2[x])
 
@@ -761,23 +789,7 @@ def get_row(table):
 
 
 tkinter_window()
-# table = [[34,6,3],[34,6,3],[34,6,3], [0.02,0.03,0.5], [0.8,0.9,0.4]]
-# i = 1
-#
-# print(table[len(table) - 2][0])
-# while i < len(table[0]):
-#     if table[len(table) - 2][i] >= 0.05 and table[len(table) - 1][i] <= 0.5849:
-#         for x in table:
-#             del x[i]
-#     else:
-#         i += 1
-#
-# print(table)
-# tab = [3,6,7,4,3]
-# new_tab = tab[1:]
-# print(new_tab)
-# length = len(read_all_data("C_DM1_p_value_log2.xlsx"))
-# print(read_all_data("C_DM1_p_value_log2.xlsx")[length - 1][0])
+
 # defining function for random
 # string id with parameter
 # def ran_gen(size, chars=string.ascii_uppercase + string.digits):
@@ -789,4 +801,10 @@ tkinter_window()
 #
 # for x in range(5):
 #     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
+
+# print(read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0])
+
+# print(separating_group(read_data("Raw_data_and_steps_Diabetes_data.xlsx"), "Control")[0])
+
+# print(read_group_data_with_average("Control_Group.xlsx")[6])
 
