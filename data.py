@@ -529,7 +529,7 @@ def calculate_log(str1, str2):
 
     log_col = []
 
-    for x in range(len(avg_1)):
+    for x in range(1, len(avg_1)):
         log = get_log(avg_1[x], avg_2[x])
         log_col.append(log)
 
@@ -592,8 +592,9 @@ def get_p_value(str1, str2):
     # get each row
     data_1 = get_row(table_1)
     data_2 = get_row(table_2)
+
     # print(test_p(data_1[0], data_2[0]))
-    for x in range(len(data_1)):
+    for x in range(1, len(data_1)):
         p = test_p(data_1[x], data_2[x])
         p_col.append(p)
 
@@ -634,24 +635,24 @@ def produce_combine_p(str1, str2, type):
     # str1 data
     for x in range(1, len(table_1)):
         # insert name of group at the first row
-        table_1[x].insert(0, group_1)
+        # table_1[x].insert(0, group_1)
         table.append(table_1[x])
 
     # str1 average data
     avg_1 = calculate_average(str1)
     change_to_1(avg_1)
-    avg_1.insert(0, "AVG")
+    # avg_1.insert(0, "AVG")
     table.append(avg_1)
 
     # str2 data
     for x in range(1, len(table_2)):
-        table_2[x].insert(0, group_2)
+        # table_2[x].insert(0, group_2)
         table.append(table_2[x])
 
     # str2 average data
     avg_2 = calculate_average(str2)
     change_to_1(avg_2)
-    avg_2.insert(0, "AVG")
+    # avg_2.insert(0, "AVG")
     table.append(avg_2)
 
     # change None to 0 cell
@@ -733,6 +734,7 @@ def read_all_data(file):
 
     return table
 
+
 # produce data in new file with p value or p value and log
 def produce_file_p_log(table, str1, str2, type):
     if type == 0:
@@ -807,4 +809,5 @@ tkinter_window()
 # print(separating_group(read_data("Raw_data_and_steps_Diabetes_data.xlsx"), "Control")[0])
 
 # print(read_group_data_with_average("Control_Group.xlsx")[6])
+
 
