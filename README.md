@@ -445,5 +445,41 @@ def separating_group(table, string):
     ```
     - In this function, we just export the data into ```final_data.csv``` file after looping data using ```itertools``` library. For more information, you can read https://docs.python.org/3.0/library/itertools.html to learn more about itertools.
    ## Step 3: Create a new tab in the desktop application to generate ```final_data.csv```.
+   - In ```tkinter_window()``` function, we continue to add another tab using this code:
+   ```
+    tab4 = ttk.Frame(tab_control)
+    tab_control.add(tab4, text="Final Data")
+    # tab 4 - save to csv
+    lbl_4 = Label(tab4, text="Generate Final Data")
+    lbl_4.pack(padx=2, pady=2)
+
+    def final():
+        start = timeit.default_timer()
+        res = "Perfect! The file is being processed."
+        final_table = []
+        # produce data after checking percentage in tables
+        control_table = read_group_data_with_average("Control_Group.xlsx")
+        diabetes_table = read_group_data_with_average("Diabetes_Group.xlsx")
+        diabetes_insulin_table = read_group_data_with_average("Diabetes_Insulin_Group.xlsx")
+
+        # append to a big table
+        for x in range(len(control_table)):
+            final_table.append(control_table[x])
+        for x in range(1, len(diabetes_table)):
+            final_table.append(diabetes_table[x])
+        for x in range(1, len(diabetes_insulin_table)):
+            final_table.append(diabetes_insulin_table[x])
+
+        save_csv(final_table)
+        messagebox.showinfo('Success!', res)
+        stop = timeit.default_timer()
+        print('Time: ', stop - start)
+
+    btn_4 = Button(tab4, text="Generate", command=final)
+    btn_4.pack(padx=5, pady=5)
+
+   ```
+   - Particularly, the ```final()``` function is to add all data into a large table ```final_table```; also, we use this table as a parameter for ```save_csv(final_table)``` function so that we can generate a csv file as we want.
+   - Then, we add Label and Button as usual.
    
    
