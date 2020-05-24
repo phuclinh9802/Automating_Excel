@@ -239,27 +239,34 @@ This project is to help phD Researchers get more convenient when calculating lar
 def separating_group(table, string):
     count = 0
     tab = []
+    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0]
+    slicing = slice(1, len(original_table))
+    tab.append(original_table[slicing])
 
     for y in range(len(table)):
         record = []
         if table[y][0] == string:
+            abbreviation(record, string)
             for x in range(len(table[1])):
                 if isinstance(table[y][x], float) or table[y][x] is None:
                     record.append(table[y][x])
             new_record = record
             tab.append(new_record)
 
-    count_table = []
-    for x in range(len(tab[0])):
+    count_table = ["Count"]
+    for x in range(1, len(tab[0])): # not counting first row - title row
         count = 0
-        for y in range(len(tab)):
+        for y in range(1, len(tab)): # not counting first column - m/z column
             if tab[y][x] is not None:
                 count += 1
         count_table.append(count)
 
+    # appending the count table to count the appearance of data each row
     tab.append(count_table)
+
     return tab
  ```
+   - To begin with, it would be nice if we can include m/z column in every single group data file. Here, I used ```slice()``` function to get the m/z column so the researchers can be more convenient when analyzing the data.
    - We use nested loop to loop through each element in the 2-d list. Explicitly, in the line ```if table[y][0] == string:```, we want to check if the group name matches the input or not. If so, we can check the data if they are either of type ```float``` or ```None```, then we can append to ```record``` list. After that, we store ```record``` list in another variable ```new_record``` and then append it to a new table ```tab``` to create a new table. This implementation is the same as the step in ```readData(str)``` function (looping step)
    - Also, to make life easier for the last step of the project, we append ```count_table``` list to the ```tab``` table above. ```count_table``` list counts the appearance of data in each row. 
    ## Step 2: Create a new tab to generate group data with count
