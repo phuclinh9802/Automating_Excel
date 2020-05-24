@@ -595,3 +595,154 @@ def separating_group(table, string):
  - Third, we can transpose the data using ```get_row()``` function to be more convenient when calculating the p value of each row.
  - Last but not least, we calculate p-value in each row using ```test_p()``` function, then appending each p value into ```p_col``` list.
  - We can return the list ```p_col``` now.
+   ## Step 6: Calculate log_2 value:
+   - We create a one-line function just to return the result of the difference between 2 log_2 data using ```numpy```:
+   ```
+   # test get log2
+   def get_log(a1, a2):
+       return np.log2(a1) - np.log2(a2)
+   ```
+   - Next, we append each of the log_2 data of each row in a list using ```calculate_log()``` function:
+   ```
+   def calculate_log(str1, str2):
+    avg_1 = calculate_average(str1)
+    avg_2 = calculate_average(str2)
+
+    log_col = []
+
+    for x in range(1, len(avg_1)):
+        log = get_log(avg_1[x], avg_2[x])
+        log_col.append(log)
+
+    return log_col
+   ```
+   - For this function, the two data we need to calculate the log are 2 average data of 2 group to compare. (For instance: Average of Control group and Average of Diabetes group), so we need average columns of both groups.
+   - Next, we create a simple for loop to calculate log_2 in each row and append the result to the ```log_col``` list.
+   - Return the ```log_col``` list.
+   
+## Step 7: Combine p-value / log_2 columns to 2 group data:
+- Before looking at the code, there are some considerations to be mentioned:
+  - With this step, we want the columns to be combined: m/z, columns of 2 groups, average columns of 2 groups, p-value, and/or   log_2 column.
+  - Plus, if average is none, we can change to 1 for the sake of the original file.
+  - There will be 2 types representing the file that is generated:
+   - Type 0: p-value only
+   - Type 1: p-value and log_2 FC
+- Okay, let's look at the code:
+```
+# combine p value with 2 group data
+def produce_combine_p(str1, str2, type):
+    # initialize table to combine data
+    group_1 = ""
+    group_2 = ""
+    if str1 == "Control_Group.xlsx":
+        group_1 = "C"
+    elif str2 == "Control_Group.xlsx":
+        group_2 = "C"
+    if str1 == "Diabetes_Group.xlsx":
+        group_1 = "DM1"
+    elif str2 == "Diabetes_Group.xlsx":
+        group_2 = "DM1"
+    if str1 == "Diabetes_Insulin_Group.xlsx":
+        group_1 = "DM1+I"
+    elif str2 == "Diabetes_Insulin_Group.xlsx":
+        group_2 = "DM1+I"
+
+    table = []
+
+    table.append(get_mz_col())
+    # read data from specific groups
+    table_1 = read_group_data(str1)
+    table_2 = read_group_data(str2)
+
+    # append each column into the table
+    # str1 data
+    for x in range(1, len(table_1)):
+        # insert name of group at the first row
+        # table_1[x].insert(0, group_1)
+        table.append(table_1[x])
+
+    # str1 average data
+    avg_1 = calculate_average(str1)
+    change_to_1(avg_1)
+    # avg_1.insert(0, "AVG")
+    table.append(avg_1)
+
+    # str2 data
+    for x in range(1, len(table_2)):
+        # table_2[x].insert(0, group_2)
+        table.append(table_2[x])
+
+    # str2 average data
+    avg_2 = calculate_average(str2)
+    change_to_1(avg_2)
+    # avg_2.insert(0, "AVG")
+    table.append(avg_2)
+
+    # change None to 0 cell
+    change_to_zero(table_1)
+    change_to_zero(table_2)
+
+    # append p_value column
+    p_col = get_p_value(str1, str2)
+    p_col.insert(0, "p_value")
+    table.append(p_col)
+
+    # New workbook xlsx file
+    # p value only
+    if type == 0:
+        produce_file_p_log(table, str1, str2, type)
+
+    # both p value and log
+    elif type == 1:
+        log_col = calculate_log(str1, str2)
+        str_log = "LOG2FC " + group_1 + "/" + group_2
+        log_col.insert(0, str_log)
+        table.append(log_col)
+        produce_file_p_log(table, str1, str2, type)
+```
+- The first few lines with a bunch of conditional statements are only to label each column group data with symbols (For example: Control data will be labeled as "C").
+- Next, you can follow each step of appending data into the table: m/z column -> first group data -> average of first group data -> second group data -> average of second group data -> p-value (```if type == 0```) / p-value and log_2 (```if type == 1```)
+- Now, in the ```if else``` statements to generate p value and/or log_2 columns, we create another function ```produce_file_p_log()``` to handle this:
+```
+# produce data in new file with p value or p value and log
+def produce_file_p_log(table, str1, str2, type):
+    if type == 0:
+        if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1+I_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('D_DM1+I_p_value.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+    elif type == 1:
+        if str1 == "Control_Group.xlsx" and str2 == "Diabetes_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Control_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('C_DM1+I_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+        elif str1 == "Diabetes_Group.xlsx" and str2 == "Diabetes_Insulin_Group.xlsx":
+            workbook = xlsxwriter.Workbook('D_DM1+I_p_value_log2.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(table)):
+                worksheet.write_column(0, x, table[x])
+            workbook.close()
+```
+- I made this intuitive by reading on the name of the xlsx file. For example, if the type is 0, we check for the name of  group data based on the str1, str2 parameters. Then we can add the table that is implemented in ```produce_combine_p()``` function to generate xlsx file using ```xlsxwriter``` library.
