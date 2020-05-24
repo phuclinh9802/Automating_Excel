@@ -827,3 +827,171 @@ def produce_file_p_log(table, str1, str2, type):
    - You can take a look at the files generated in my repository.
    - We are done with this step!!!
      
+# F: Up/Down-Regulated File Generator:
+  - The purpose of this step is to generate file data based on p-value, log_2 FC, and the following conditions:
+    - Upregulated: Log2 FC > 0.5849 and p < 0.05 
+    - Downregulated: Log2 FC < -0.5849 and p < 0.05
+  ## Step 1: Create a function to read all data in any xlsx file.
+  - As mentioned above, we can use the following lines of code to read the data, and this should be intuitive. I used ```xlrd``` library to read the data and transfer to the list using nested loop.
+  ```
+  def read_all_data(file):
+    wb = xlrd.open_workbook(file)
+    ws = wb.sheet_by_index(0)
+    rows = ws.nrows
+    cols = ws.ncols
+    table = []
+    for y in range(cols):
+        record = []
+        for x in range(rows):
+            record.append(ws.cell(x, y).value)
+        new_record = record
+        table.append(new_record)
+
+    return table
+  ```
+  ## Step 2: A function to handle the up/down-regulated conditions:
+  - With this, we need to find an algorithm to properly read through the data in a list, and then apply the conditions. The following code luckily satisfies our need:
+  ```
+     def up_down_regulated(file, up_or_down):
+       table = read_all_data(file)
+       change_to_zero(table)
+
+       # keep track of index
+       i = 1
+       # if up-regulated
+       if up_or_down == 0:
+           # loop to put data to the correct list
+           # for y in range(len(table[0]) - 1):
+
+           while i < len(table[0]):
+               if table[len(table) - 2][i] == 0 and table[len(table) - 1][i] == 0:
+                   for x in table:
+                       del x[i]
+               elif table[len(table) - 2][i] >= 0.05 or table[len(table) - 1][i] <= 0.5849:
+                   for x in table:
+                       del x[i]
+               else:
+                   i += 1
+
+       # if down-regulated
+       elif up_or_down == 1:
+           # loop to put data to the correct list
+           while i < len(table[0]):
+               if table[len(table) - 2][i] == 0 and table[len(table) - 1][i] == 0:
+                   for x in table:
+                       del x[i]
+               elif table[len(table) - 2][i] >= 0.05 or table[len(table) - 1][i] >= -0.5849:
+                   for x in table:
+                       del x[i]
+               else:
+                   i += 1
+       return table
+  ```
+  - First, I immediately used the ```read_all_data()``` function created above to generate data in ```table``` list. Again, we can use ```change_to_0``` function to change any ```None``` element to 0 for the sake of calculation.
+  - Next, we can see that the conditions are set for ```up_or_down``` variable, because it represents the type of file we want to generate:
+    - If ```up_or_down == 0```, we generate Up-regulated files.
+    - Else if ```up_or_down == 1```, we generate Down-regulated files.
+  - Then, we loop and check the conditions for each data. If any row is not satisfied with the condition that is set above for up/down-regulated data, we remove that row.
+  - Return the table after having been modified.
+  ## Step 2: Add a tab in the desktop application
+  - Again, we use the following code to add another tab into the app:
+  ```
+    tab6 = ttk.Frame(tab_control)
+    tab_control.add(tab6, text="Up/Down-regulated")
+    
+    lbl_6 = Label(tab6, text="Group Name: Control, Diabetes, Diabetes+Insulin")
+    lbl_6.pack(padx=2, pady=2)
+
+    b = IntVar()
+    radio_cd = Radiobutton(tab6, text="Control - Diabetes", variable=b, value=0)
+    radio_cd.pack(anchor=W)
+    radio_cdi = Radiobutton(tab6, text="Control - Diabetes+Insulin", variable=b, value=1)
+    radio_cdi.pack(anchor=W)
+    radio_ddi = Radiobutton(tab6, text="Diabetes - Diabetes+Insulin", variable=b, value=2)
+    radio_ddi.pack(anchor=W)
+
+    a = IntVar()
+    radio_up = Radiobutton(tab6, text="Up-regulated", variable=a, value=0)
+    radio_up.pack(anchor=W)
+    radio_down = Radiobutton(tab6, text="Down-regulated", variable=a, value=1)
+    radio_down.pack(anchor=W)
+
+    # generate up-regulated / down-regulated file based on radio choice
+    def up_down():
+        table = []
+        res = "Yes! You have successfully generated the file"
+        failed = "Please try again"
+        if a.get() == 0:
+            if b.get() == 0:
+                table = up_down_regulated("C_DM1_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (C x DM1).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 1:
+                table = up_down_regulated("C_DM1+I_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (C x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 2:
+                table = up_down_regulated("D_DM1+I_p_value_log2.xlsx", 0)
+                workbook = xlsxwriter.Workbook('Up (D x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        elif a.get() == 1:
+            if b.get() == 0:
+                table = up_down_regulated("C_DM1_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (C x DM1).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 1:
+                table = up_down_regulated("C_DM1+I_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (C x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            elif b.get() == 2:
+                table = up_down_regulated("D_DM1+I_p_value_log2.xlsx", 1)
+                workbook = xlsxwriter.Workbook('Down (D x DM1+I).xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        else:
+            messagebox.showerror("Failed!", failed)
+
+    btn_6 = Button(tab6, text="Generate", command=up_down)
+    btn_6.pack(padx=5, pady=5)
+  ```
+  - We can see the reappearance of ```RadioButton``` function. Also, we do not need a field to fill in, since we have already done them in ```up_down_regulated()``` and ```up_down()``` function above.
+  - This time, we have 2 separated RadioButton groups associated with different variables ```a``` and ```b```:
+    - ```b```: represents 2 group data to be compared
+    - ```a```: represents types of files to be generated: 
+      - ```a.get() == 0```: Up-regulated
+      - ```a.get() == 1```: Down-regulated
+  - Again, I used ```xlsxwriter``` library to generate xlsx file based on the radio button selected and the conditions in ```up_down()``` function.
+  - Finally, we are done with this step. The result of the tab is below. The files generated is in my repository. 
+  <p align="center">
+    <img src="Step_6.png" width=500>
+   </p>
+    
+      
+   
