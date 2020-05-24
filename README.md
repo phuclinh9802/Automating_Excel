@@ -481,6 +481,10 @@ def separating_group(table, string):
    ```
    - Particularly, the ```final()``` function is to add all data into a large table ```final_table```; also, we use this table as a parameter for ```save_csv(final_table)``` function so that we can generate a csv file as we want.
    - Then, we add Label and Button as usual.
+   <p align="center">
+    <img src="Step_4.png" width=500>
+   </p>
+   
    - We are done with Step 4 - Generating csv file. (P/s: You can check the result in my repository - file ```final_data.csv```).
    # E. p-value / log_2 FC generator
    ## Step 1: Algorithm for p-value:
@@ -746,3 +750,80 @@ def produce_file_p_log(table, str1, str2, type):
             workbook.close()
 ```
 - I made this intuitive by reading on the name of the xlsx file. For example, if the type is 0, we check for the name of  group data based on the str1, str2 parameters. Then we can add the table that is implemented in ```produce_combine_p()``` function to generate xlsx file using ```xlsxwriter``` library.
+
+  ## Step 8: Create a new tab to generate p value/ log_2 FC data file
+  - Just as before, we add another tab in the ```tkinter_window``` function:
+  ```
+  tab5 = ttk.Frame(tab_control)
+  tab_control.add(tab5, text="Get p value")
+  
+   # tab 5 - get p value
+    lbl_5 = Label(tab5, text="Get p value - C: Control, D: Diabetes; DI: Diabetes+Insulin")
+    lbl_5.pack(padx=2, pady=2)
+
+    txt_5 = Entry(tab5, width=20)
+    txt_5.pack(padx=2, pady=2)
+
+    txt_5_2 = Entry(tab5, width=20)
+    txt_5_2.pack(padx=2, pady=2)
+
+    v = IntVar()
+    radio_1 = Radiobutton(tab5, text="p value only", variable=v, value=0)
+    radio_1.pack(anchor=W)
+    radio_2 = Radiobutton(tab5, text="p and log2", variable=v, value=1)
+    radio_2.pack(anchor=W)
+
+    # generate file based on entry
+    def pval():
+        res = "File has been generated"
+        failed = "Please enter the correct group"
+        if v.get() == 0:
+            if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
+                produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 0)
+                messagebox.showinfo('Success!', res)
+            else:
+                messagebox.showerror("Error", failed)
+        if v.get() == 1:
+            if (txt_5.get() == "C" and txt_5_2.get() == "D") or (txt_5.get() == "D" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "C" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "C"):
+                produce_combine_p("Control_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            elif (txt_5.get() == "D" and txt_5_2.get() == "DI") or (txt_5.get() == "DI" and txt_5_2.get() == "D"):
+                produce_combine_p("Diabetes_Group.xlsx", "Diabetes_Insulin_Group.xlsx", 1)
+                messagebox.showinfo('Success!', res)
+            else:
+                messagebox.showerror("Error", failed)
+
+    btn_5 = Button(tab5, text="Generate", command=pval)
+    btn_5.pack(padx=5, pady=5)
+  ```
+  - The Label and Button creation are the same, but the only difference is the ```RadioButton``` function. We want to have a choice between generating p_value only and both p_value/log_2 FC, so I created radio buttons so that the researchers are more comfortable when trying to generate a particular file they want. 
+  - We can dive a little bit deeper at these lines: 
+  ```
+    v = IntVar()
+    radio_1 = Radiobutton(tab5, text="p value only", variable=v, value=0)
+    radio_1.pack(anchor=W)
+    radio_2 = Radiobutton(tab5, text="p and log2", variable=v, value=1)
+    radio_2.pack(anchor=W)
+
+  ```
+    - So each radio buttons will depend upon the value of variable v. Here, ```radio_1``` represents ```v.get() = 0```, and ```radio_2``` represents ```v.get() = 1```.
+    - As you can see, ```v.get()``` variable is created to check the type of file we want to generate. 
+     - If ```v.get() = 0```, we only want to generate a file with p-value 
+     - Else if ```v.get() = 1```, we want to generate both a file with p-value and log_2
+     - Below is the image of the tab I created:
+     <p align="center">
+    <img src="Step_5.png" width=500>
+   </p>
+   
+   - You can take a look at the files generated in my repository.
+   - We are done with this step!!!
+     
