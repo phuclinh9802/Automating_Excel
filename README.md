@@ -377,6 +377,73 @@ def separating_group(table, string):
  - As you can see in line 78 of the ```Control_Group.xlsx``` file, the line originally exists 1 data, hence ```count = 1```. After step 3, the data is set to empty, and ```count``` column is reset to 0. 
  
  # D. Saving data to ```csv``` file
+ - In this step, we do not need many functions to perform the generation of data. We only have to implement:
+   - ```read_group_data_with_average()``` function
+   - ```save_csv()``` function, and
+   - Add a new tab to the desktop application to generate ```final_data.csv```
+  ## Step 1: Read each group data, including average of each row data.
+   ```
+   # Read group data with average: 1. Control 2. Diabetes 3. Diabetes+Insulin
+    def read_group_data_with_average(str):
+     wb = xlrd.open_workbook(str)
+     ws = wb.sheet_by_index(0)
+     rows = ws.nrows
+     cols = ws.ncols
+     table = []
+     count = 0
+     average_column = calculate_average(str)
 
+     for y in range(cols):
+         record = []
+         if y < cols - 1:
+             for x in range(rows):
+                 record.append(ws.cell(x,y).value)
+             new_record = record
+             table.append(new_record)
+
+     # calculate average of group data in each row using openpyxl
+     table.append(average_column)
+
+     return table
+   ```
+   - As I said, we are going to read all of the data in ```Control_Group.xlsx```, ```Diabetes_Group.xlsx```, and ```Diabetes+Insulin_Group.xlsx``` files.
+   - ```average_column = calculate_average(str)``` is to get the ```Avg``` column from the function ```calculate_average(str)``` with ```str``` parameter being the name of the xlsx file:
+   ```
+   # average of group data : Control_Group.xlsx, Diabetes_Group.xlsx, Diabetes_Insulin_Group.xlsx
+   def calculate_average(string):
+       wb = openpyxl.load_workbook(filename=string)
+       sheet = wb['Sheet1']
+       row = sheet.max_row
+       column = sheet.max_column
+       col = []
+       col.append("AVG")
+       for x in range(2, row + 1):
+           average = 0.0
+           for y in range(2, column):
+               if sheet.cell(row=x, column=y).value is not None:
+                   average = average + sheet.cell(row=x, column=y).value
+           average = average / 5.0
+           col.append(average)
+
+       change_to_1(col)
+       wb.save(string)
+
+       return col
+
+   ```
+   - In this function, I used ```openpyxl``` library to load and read the file. Next, I calculate the average of each row data which is the sum of all data in a row and divided by the number of data in that row, which is 5.
+   - Going back to ```read_group_data_with_average(str)``` function, I continue to append each column of the group data into ```table``` list. Finally, I append ```average_column``` to ```table``` so that we have a group data with average.
+   ## Step 2: Create a function ```save_csv()``` to save to a csv file after adding all group data (with average) into a large table list.
+    ```
+       # save to csv file
+       def save_csv(table):
+          export_data = zip_longest(*table, fillvalue='')
+          with open('final_data.csv', 'w', newline='') as file:
+              writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+              writer.writerows(export_data)
+          file.close()
+    ```
+    - In this function, we just export the data into ```final_data.csv``` file after looping data using ```itertools``` library. For more information, you can read https://docs.python.org/3.0/library/itertools.html to learn more about itertools.
+   ## Step 3: Create a new tab in the desktop application to generate ```final_data.csv```.
    
-  
+   
