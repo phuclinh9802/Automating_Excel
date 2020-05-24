@@ -599,7 +599,7 @@ def separating_group(table, string):
  - Third, we can transpose the data using ```get_row()``` function to be more convenient when calculating the p value of each row.
  - Last but not least, we calculate p-value in each row using ```test_p()``` function, then appending each p value into ```p_col``` list.
  - We can return the list ```p_col``` now.
-   ## Step 6: Calculate log_2 value:
+## Step 6: Calculate log_2 value:
    - We create a one-line function just to return the result of the difference between 2 log_2 data using ```numpy```:
    ```
    # test get log2
@@ -751,7 +751,7 @@ def produce_file_p_log(table, str1, str2, type):
 ```
 - I made this intuitive by reading on the name of the xlsx file. For example, if the type is 0, we check for the name of  group data based on the str1, str2 parameters. Then we can add the table that is implemented in ```produce_combine_p()``` function to generate xlsx file using ```xlsxwriter``` library.
 
-  ## Step 8: Create a new tab to generate p value/ log_2 FC data file
+## Step 8: Create a new tab to generate p value/ log_2 FC data file
   - Just as before, we add another tab in the ```tkinter_window``` function:
   ```
   tab5 = ttk.Frame(tab_control)
@@ -893,7 +893,7 @@ def produce_file_p_log(table, str1, str2, type):
     - Else if ```up_or_down == 1```, we generate Down-regulated files.
   - Then, we loop and check the conditions for each data. If any row is not satisfied with the condition that is set above for up/down-regulated data, we remove that row.
   - Return the table after having been modified.
-  ## Step 2: Add a tab in the desktop application
+  ## Step 3: Add a tab in the desktop application
   - Again, we use the following code to add another tab into the app:
   ```
     tab6 = ttk.Frame(tab_control)
