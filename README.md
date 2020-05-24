@@ -483,4 +483,115 @@ def separating_group(table, string):
    - Then, we add Label and Button as usual.
    - We are done with Step 4 - Generating csv file. (P/s: You can check the result in my repository - file ```final_data.csv```).
    # E. p-value / log_2 FC generator
-   
+   ## Step 1: Algorithm for p-value:
+   - First and formost, we have to find a legitimate algorithm to calculate p-value. If you have taken a statistics class in college, this should not be a burden. The algorithm is below:
+ ```
+   # test p value calculation
+   def test_p(data_1, data_2):
+       mean1 = np.mean(data_1)
+       mean2 = np.mean(data_2)
+       # get std error
+       se1 = sem(data_1)
+       se2 = sem(data_2)
+       # standard error on the difference between the samples
+       sed = np.sqrt(se1 ** 2.0 + se2 ** 2.0)
+       if sed == 0:
+           return None
+       # calculate T Statistic
+       t_stat = (mean1 - mean2) / sed
+       # degrees of freedom
+       df = len(data_1) + len(data_2) - 2
+       # calculate the p-value
+       p = (1.0 - t.cdf(abs(t_stat), df))
+       return p
+```
+  - First of all, we calculate mean of two lists of data using ```numpy``` library. 
+  - Then, we calculate the standard error of two lists using ```scipy``` library and ```sem(data)``` function.
+  - After that, as I said in the comment of the code, we ```calculate the standard error on the difference between the samples```. 
+     - ```if``` statement is to check if the cell is empty.
+  - We can follow the algorithm as I mentioned above about T Statistic, degree of freedom, and finally, p-value.
+  ## Step 2: Read data from files that have been generated in step 2 (Control_Group, Diabetes_Group, and Diabetes+Insulin_Group).
+  - We create a function to read the data from each group without ```Count``` and ```Average``` column:
+```
+  # Read group data only
+  def read_group_data(str):
+      wb = xlrd.open_workbook(str)
+      ws = wb.sheet_by_index(0)
+      rows = ws.nrows
+      cols = ws.ncols
+      table = []
+      count = 0
+
+      for y in range(cols):
+          record = []
+          if y < cols - 1:
+              for x in range(rows):
+                  record.append(ws.cell(x, y).value)
+              new_record = record
+              table.append(new_record)
+
+      return table
+  ```
+   ## Step 3: Transposing columns to rows using ```get_row()``` function:
+   - We also using a simple nested loop to do this. The only difference is we exchange the range of row to column and column to row:
+   ```
+    def get_row(table):
+    tab = []
+    for x in range(len(table[0])):
+        rec = []
+        for y in range(len(table)):
+            rec.append(table[y][x])
+        new_rec = rec
+        tab.append(new_rec)
+
+    return tab
+   ```
+   ## Step 4: (Optional) Change every empty cell to value 0:
+   - We have this code:
+   ```
+   # change back empty cells to 0
+   def change_to_zero(table):
+       for x in range(len(table)):
+           for y in range(len(table[0])):
+               if table[x][y] == "":
+                   table[x][y] = 0
+   ```
+   - Here, we check each element in 2d list (each element in an excel file) if it is empty. If yes, change to 0.
+   ## Step 5: Get p value column:
+   - Based on the steps above, we can generate the code like below: 
+   ```
+   # p value to compare 2 groups
+   def get_p_value(str1, str2):
+       # read data from specific groups
+       table_1 = read_group_data(str1)
+       slicing1 = slice(1, len(table_1))
+       table_1 = table_1[slicing1]
+
+       table_2 = read_group_data(str2)
+       slicing2 = slice(1, len(read_group_data(str2)))
+       table_2 = table_2[slicing2]
+
+       # change None to 0 cell
+       change_to_zero(table_1)
+       change_to_zero(table_2)
+
+       # p value calculation
+       p_col = []
+
+       # get each row
+       data_1 = get_row(table_1)
+       data_2 = get_row(table_2)
+
+       # print(test_p(data_1[0], data_2[0]))
+       for x in range(1, len(data_1)):
+           p = test_p(data_1[x], data_2[x])
+           p_col.append(p)
+
+       return p_col
+   ```
+ - As you can see, we have included all functions created above to generate p value column.
+ - To begin with, since in each group data, we have m/z column, but our objective is only dependent on the group data, so we are going to cut m/z column off the list by using ```slice()``` function again.
+ - Then, we change ```None``` elements, which represent empty cells, to 0.
+ - Third, we can transpose the data using ```get_row()``` function to be more convenient when calculating the p value of each row.
+ - Last but not least, we calculate p-value in each row using ```test_p()``` function, then appending each p value into ```p_col``` list.
+ - We can return the list ```p_col``` now.
