@@ -481,5 +481,6 @@ def separating_group(table, string):
    ```
    - Particularly, the ```final()``` function is to add all data into a large table ```final_table```; also, we use this table as a parameter for ```save_csv(final_table)``` function so that we can generate a csv file as we want.
    - Then, we add Label and Button as usual.
-   
+   - We are done with Step 4 - Generating csv file. (P/s: You can check the result in my repository - file ```final_data.csv```).
+   # E. p-value / log_2 FC generator
    
