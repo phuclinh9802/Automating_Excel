@@ -63,8 +63,8 @@ def read_group_data(str):
             new_record = record
             table.append(new_record)
 
-
     return table
+
 
 # Read group data with average: 1. Control 2. Diabetes 3. Diabetes+Insulin
 def read_group_data_with_average(str):
@@ -168,7 +168,7 @@ def tkinter_window():
     # frame = Frame(window)
     window.title("Calculating Metabolomic Data")
 
-    window.geometry('700x200')
+    window.geometry('700x350')
 
     tab_control = ttk.Notebook(window)
     tab1 = ttk.Frame(tab_control)
@@ -266,6 +266,15 @@ def tkinter_window():
         diabetes_table = read_group_data_with_average("Diabetes_Group.xlsx")
         diabetes_insulin_table = read_group_data_with_average("Diabetes_Insulin_Group.xlsx")
 
+        # remove rows that have no data
+        i = 1
+        while i < len(control_table[0]):
+            if control_table[len(control_table) - 1][i] == 1 and diabetes_table[len(diabetes_table) - 1][i] == 1 and diabetes_insulin_table[len(diabetes_insulin_table) - 1][i] == 1:
+                remove_rows(control_table, i)
+                remove_rows(diabetes_table, i)
+                remove_rows(diabetes_insulin_table, i)
+            else:
+                i += 1
 
         # append to a big table
         for x in range(len(control_table)):
@@ -274,6 +283,8 @@ def tkinter_window():
             final_table.append(diabetes_table[x])
         for x in range(1, len(diabetes_insulin_table)):
             final_table.append(diabetes_insulin_table[x])
+
+
 
         save_csv(final_table)
         messagebox.showinfo('Success!', res)
@@ -415,6 +426,7 @@ def tkinter_window():
     btn_6.pack(padx=5, pady=5)
     window.mainloop()
 
+
 # abbreviation
 def abbreviation(table, string):
     if string == "Control":
@@ -423,6 +435,7 @@ def abbreviation(table, string):
         table.append("DM1")
     elif string == "Diabetes+Insulin":
         table.append("DM1+I")
+
 
 # separate group
 def separating_group(table, string):
@@ -481,12 +494,22 @@ def check_percentage(string):
     wb.save(string)
 
 
+# remove rows if avg goes to 1
+def remove_rows(table, i):
+    # while i < len(table[0]):
+    if table[len(table) - 1][i] == 1:
+        for x in table:
+            del x[i]
+    # else:
+    #     i += 1
+
+
+
 # save to csv file
 def save_csv(table):
     export_data = zip_longest(*table, fillvalue='')
     with open('final_data.csv', 'w', newline='') as file:
         writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        # writer.writerow(("m/z","C", "C", "C", "C", "C", "Avg", "D", "D", "D", "D", "D", "Avg", "D+I", "D+I", "D+I", "D+I", "D+I", "Avg"))
         writer.writerows(export_data)
     file.close()
 
@@ -810,4 +833,7 @@ tkinter_window()
 
 # print(read_group_data_with_average("Control_Group.xlsx")[6])
 
-
+# i = 0
+# table = [[1,2,3,4, 3], [1,2,3,4, 3], [1,2,3,4, 3], [3,2,3,4,1]]
+#
+# print(remove_rows(table, i))
