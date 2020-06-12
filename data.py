@@ -12,11 +12,15 @@ import string
 import numpy as np
 import scipy
 import math
-
+import requests
+import Automating_Excel.automate_hmdb as hmdb
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
 from scipy.stats import sem, t
+
+
+
 
 
 def replace_empty(lists):
@@ -812,8 +816,41 @@ def get_row(table):
 
     return tab
 
+def automate_db(str):
+    start = timeit.default_timer()
+    table = read_all_data(str)
+    # number of iterations for the automation
+    i = 1
+    j = 1
+    x = 1
+    # for x in range(1, len(table[0])):
+    #     record = []
+    #     while len(record) <= 700:
+    #         record.append(table[x])
+    #     hmdb.automate_hmdb(record)
 
-tkinter_window()
+    record = []
+    while i <= math.ceil((len(table[0]) - 1) / 700):
+        record = []
+        j = 1
+        while x < len(table[0]):
+            if j > 700:
+                break
+            else:
+                record.append(table[0][x])
+                x += 1
+                j += 1
+        hmdb.automate_hmdb(record)
+        i += 1
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
+
+
+
+
+
+
+# tkinter_window()
 
 # defining function for random
 # string id with parameter
@@ -837,3 +874,11 @@ tkinter_window()
 # table = [[1,2,3,4, 3], [1,2,3,4, 3], [1,2,3,4, 3], [3,2,3,4,1]]
 #
 # print(remove_rows(table, i))
+
+# r =requests.get('https://hmdb.ca/spectra/ms/search')
+# query = {'query_masses': '123'}
+# r = requests.post('https://hmdb.ca/spectra/ms/search', data= query)
+#
+# print(r.text)
+
+automate_db("Down (C x DM1).xlsx")
