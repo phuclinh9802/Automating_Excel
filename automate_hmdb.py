@@ -2,7 +2,7 @@ from splinter import Browser
 from selenium import webdriver
 import time
 
-def automate_hmdb(table):
+def automate_hmdb(table, adduct, tolerance_number):
     # add chrome driver to execute
     # To use this, you need to download chromedriver from https://chromedriver.chromium.org/downloads and choose
     # the version of google chrome you are using. Then, specify the path in executable variable like below.
@@ -22,12 +22,14 @@ def automate_hmdb(table):
     # find id for textarea - query_masses
     # query_mass = browser.find_by_id("query_masses")
 
-    browser.fill("query_masses", '\n'.join(str(t) for t in table))
+    browser.fill("query_masses", '\n'.join(str(t - 1) for t in table))
 
     adduct_type = browser.find_by_id("adduct_type")
-    adduct_type.select("M+H")
+    for a in adduct:
+        adduct_type.select(a)
 
-    browser.fill("tolerance", "10")
+
+    browser.fill("tolerance", tolerance_number)
 
     tolerance = browser.find_by_id("tolerance_units")
     tolerance.select("ppm")

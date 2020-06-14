@@ -172,12 +172,13 @@ def tkinter_window():
     # frame = Frame(window)
     window.title("Calculating Metabolomic Data")
 
-    window.geometry('700x350')
+    window.geometry('900x450')
 
     tab_control = ttk.Notebook(window)
+    tab_control.pack(expand=YES, fill="both")
     tab1 = ttk.Frame(tab_control)
     tab_control.add(tab1, text="Calculate Step 1")
-    tab_control.pack(expand=YES, fill="both")
+
 
     tab2 = ttk.Frame(tab_control)
     tab_control.add(tab2, text="Separate Group")
@@ -193,6 +194,9 @@ def tkinter_window():
 
     tab6 = ttk.Frame(tab_control)
     tab_control.add(tab6, text="Up/Down-regulated")
+
+    tab7 = ttk.Frame(tab_control)
+    tab_control.add(tab7, text="Automate HMDB")
 
 
     # tab 1
@@ -428,6 +432,80 @@ def tkinter_window():
 
     btn_6 = Button(tab6, text="Generate", command=up_down)
     btn_6.pack(padx=5, pady=5)
+
+    # tab 7
+    lbl_7 = Label(tab7, text="Group Name: Control, Diabetes, Diabetes+Insulin")
+    lbl_7.pack(padx=5, pady=5)
+
+    m = IntVar()
+    radio_cd = Radiobutton(tab7, text="Control - Diabetes", variable=m, value=0)
+    radio_cd.pack(anchor=W, padx=2)
+    radio_cdi = Radiobutton(tab7, text="Control - Diabetes+Insulin", variable=m, value=1)
+    radio_cdi.pack(anchor=W, padx=2)
+    radio_ddi = Radiobutton(tab7, text="Diabetes - Diabetes+Insulin", variable=m, value=2)
+    radio_ddi.pack(anchor=W, padx=2)
+
+
+    n = IntVar()
+    radio_up = Radiobutton(tab7, text="Up-regulated", variable=n, value=0)
+    radio_up.pack(anchor=W, padx=2)
+    radio_down = Radiobutton(tab7, text="Down-regulated", variable=n, value=1)
+    radio_down.pack(anchor=W, padx=2)
+
+    lbl_7 = Label(tab7, text="Choose your adduct type(s)")
+    lbl_7.place(x=600, y=40)
+
+    adduct_types = StringVar()
+    adduct_types.set(["M+H", "M+H-2H2O","M+H-H2O", "M+NH4", "M+Li", "M+NH4", "M+Na", "M+CH3OH+H", "M+K", "M+ACN+H", "M+2Na-H", ])
+
+    lstbox = Listbox(tab7, listvariable=adduct_types, selectmode=MULTIPLE, width=20, height=10)
+    lstbox.place(x=600, y=70)
+
+    lbl_7 = Label(tab7, text="Type your tolerance number (in ppm): ")
+    lbl_7.pack(side=LEFT)
+    entry_7 = Entry(tab7, width=20)
+    entry_7.pack(side=LEFT)
+
+    # generate up-regulated / down-regulated file based on radio choice
+    def automation():
+        table = []
+        res = "Yes! You have successfully generated the file"
+        failed = "Please try again"
+        selected = lstbox.curselection()
+
+        lst = []
+        for i in selected:
+            lst.append(lstbox.get(i))
+
+        if n.get() == 0:
+            if m.get() == 0:
+                automate_db("Up (C x DM1).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                automate_db("Up (C x DM1+I).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                automate_db("Up (D x DM1+I).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        elif n.get() == 1:
+            if m.get() == 0:
+                automate_db("Down (C x DM1).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                automate_db("Down (C x DM1+I).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                automate_db("Down (D x DM1+I).xlsx", lst, int(entry_7.get()))
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        else:
+            messagebox.showerror("Failed!", failed)
+
+    btn_7 = Button(tab7, text="Generate", command=automation)
+    btn_7.place(x=380, y=300)
     window.mainloop()
 
 
@@ -816,7 +894,9 @@ def get_row(table):
 
     return tab
 
-def automate_db(str):
+
+# automate on hmdb website
+def automate_db(str, adduct, tolerance_number):
     start = timeit.default_timer()
     table = read_all_data(str)
     # number of iterations for the automation
@@ -840,7 +920,7 @@ def automate_db(str):
                 record.append(table[0][x])
                 x += 1
                 j += 1
-        hmdb.automate_hmdb(record)
+        hmdb.automate_hmdb(record, adduct, tolerance_number)
         i += 1
     stop = timeit.default_timer()
     print('Time: ', stop - start)
@@ -850,7 +930,7 @@ def automate_db(str):
 
 
 
-# tkinter_window()
+tkinter_window()
 
 # defining function for random
 # string id with parameter
@@ -881,4 +961,4 @@ def automate_db(str):
 #
 # print(r.text)
 
-automate_db("Down (C x DM1).xlsx")
+# automate_db("Down (C x DM1).xlsx", ["M+H", "M+Li"], 10)
