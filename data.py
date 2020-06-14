@@ -14,6 +14,8 @@ import scipy
 import math
 import requests
 import Automating_Excel.automate_hmdb as hmdb
+import os
+import shutil
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
@@ -897,7 +899,7 @@ def get_row(table):
 
 # automate on hmdb website
 def automate_db(str, adduct, tolerance_number):
-    start = timeit.default_timer()
+    # start = timeit.default_timer()
     table = read_all_data(str)
     # number of iterations for the automation
     i = 1
@@ -923,14 +925,10 @@ def automate_db(str, adduct, tolerance_number):
         hmdb.automate_hmdb(record, adduct, tolerance_number)
         i += 1
     stop = timeit.default_timer()
-    print('Time: ', stop - start)
+    # print('Time: ', stop - start)
 
 
-
-
-
-
-tkinter_window()
+# tkinter_window()
 
 # defining function for random
 # string id with parameter
@@ -962,3 +960,6 @@ tkinter_window()
 # print(r.text)
 
 # automate_db("Down (C x DM1).xlsx", ["M+H", "M+Li"], 10)
+
+path = "/Users/phucnguyen/Downloads/search.csv"
+os.rename("/Users/phucnguyen/Downloads/search.csv", "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/search.csv")
