@@ -16,6 +16,7 @@ import requests
 import Automating_Excel.automate_hmdb as hmdb
 import os
 import shutil
+import time
 
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
@@ -481,25 +482,26 @@ def tkinter_window():
 
         if n.get() == 0:
             if m.get() == 0:
-                automate_db("Up (C x DM1).xlsx", lst, int(entry_7.get()))
+                automate_db("Up (C x DM1).xlsx", lst, int(entry_7.get()), "HMDB_up(CxDM1)")
+
                 messagebox.showinfo("Success!", res)
             elif m.get() == 1:
-                automate_db("Up (C x DM1+I).xlsx", lst, int(entry_7.get()))
+                automate_db("Up (C x DM1+I).xlsx", lst, int(entry_7.get()), "HMDB_up(CxDM1+I)")
                 messagebox.showinfo("Success!", res)
             elif m.get() == 2:
-                automate_db("Up (D x DM1+I).xlsx", lst, int(entry_7.get()))
+                automate_db("Up (D x DM1+I).xlsx", lst, int(entry_7.get()), "HMDB_up(DxDM1+I)")
                 messagebox.showinfo("Success!", res)
             else:
                 messagebox.showerror("Failed!", failed)
         elif n.get() == 1:
             if m.get() == 0:
-                automate_db("Down (C x DM1).xlsx", lst, int(entry_7.get()))
+                automate_db("Down (C x DM1).xlsx", lst, int(entry_7.get()), "HMDB_down(CxDM1)")
                 messagebox.showinfo("Success!", res)
             elif m.get() == 1:
-                automate_db("Down (C x DM1+I).xlsx", lst, int(entry_7.get()))
+                automate_db("Down (C x DM1+I).xlsx", lst, int(entry_7.get()), "HMDB_down(CxDM1+I)")
                 messagebox.showinfo("Success!", res)
             elif m.get() == 2:
-                automate_db("Down (D x DM1+I).xlsx", lst, int(entry_7.get()))
+                automate_db("Down (D x DM1+I).xlsx", lst, int(entry_7.get()), "HMDB_down(DxDM1+I)")
                 messagebox.showinfo("Success!", res)
             else:
                 messagebox.showerror("Failed!", failed)
@@ -898,9 +900,9 @@ def get_row(table):
 
 
 # automate on hmdb website
-def automate_db(str, adduct, tolerance_number):
+def automate_db(file, adduct, tolerance_number, file_name):
     # start = timeit.default_timer()
-    table = read_all_data(str)
+    table = read_all_data(file)
     # number of iterations for the automation
     i = 1
     j = 1
@@ -923,12 +925,31 @@ def automate_db(str, adduct, tolerance_number):
                 x += 1
                 j += 1
         hmdb.automate_hmdb(record, adduct, tolerance_number)
+        time.sleep(3)
+        os.rename("/Users/phucnguyen/Downloads/search.csv",
+                  "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/" + file_name + "_" + str(i) + ".csv")
         i += 1
+
+
+
     stop = timeit.default_timer()
     # print('Time: ', stop - start)
 
 
-# tkinter_window()
+def automate_kegg_id(file):
+    # get the kegg_id column from the hmdb excel file(s)
+    kegg_list = read_all_data(file)[3]
+    storage = []
+
+    for el in range(1, len(kegg_list)):
+        if el != "n/a":
+            storage.append(el)
+
+    return storage
+
+
+
+tkinter_window()
 
 # defining function for random
 # string id with parameter
@@ -961,5 +982,5 @@ def automate_db(str, adduct, tolerance_number):
 
 # automate_db("Down (C x DM1).xlsx", ["M+H", "M+Li"], 10)
 
-path = "/Users/phucnguyen/Downloads/search.csv"
-os.rename("/Users/phucnguyen/Downloads/search.csv", "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/search.csv")
+# os.rename("/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/search.csv", "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/up.csv")
+
