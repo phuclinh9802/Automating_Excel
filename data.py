@@ -14,10 +14,10 @@ import scipy
 import math
 import requests
 import Automating_Excel.automate_hmdb as hmdb
-import os
+import os, glob
 import shutil
 import time
-
+import pandas as pd
 # file to be processed: Raw_data_and_steps_Diabetes_data.xlsx
 # Replace 0 with empty cell
 from scipy.stats import sem, t
@@ -448,7 +448,6 @@ def tkinter_window():
     radio_ddi = Radiobutton(tab7, text="Diabetes - Diabetes+Insulin", variable=m, value=2)
     radio_ddi.pack(anchor=W, padx=2)
 
-
     n = IntVar()
     radio_up = Radiobutton(tab7, text="Up-regulated", variable=n, value=0)
     radio_up.pack(anchor=W, padx=2)
@@ -508,8 +507,77 @@ def tkinter_window():
         else:
             messagebox.showerror("Failed!", failed)
 
+    def csv_merged():
+        table = []
+        res = "Yes! You have successfully merged the files"
+        failed = "Please try again"
+
+
+        if n.get() == 0:
+            if m.get() == 0:
+                merge_csv("HMDB_up(CxDM1)", "HMDB_up(CxDM1).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                merge_csv("HMDB_up(CxDM1+I)", "HMDB_up(CxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                merge_csv("HMDB_up(DxDM1+I)", "HMDB_up(DxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        elif n.get() == 1:
+            if m.get() == 0:
+                merge_csv("HMDB_down(CxDM1)", "HMDB_down(CxDM1).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                merge_csv("HMDB_down(CxDM1+I)", "HMDB_down(CxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                merge_csv("HMDB_down(DxDM1+I)", "HMDB_down(DxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        else:
+            messagebox.showerror("Failed!", failed)
+
+    def kegg_automate():
+        table = []
+        res = "Yes! Automating process is successful."
+        failed = "Please try again"
+
+        if n.get() == 0:
+            if m.get() == 0:
+                automate_kegg_id("HMDB_up(CxDM1).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                automate_kegg_id("HMDB_up(CxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                automate_kegg_id("HMDB_up(DxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        elif n.get() == 1:
+            if m.get() == 0:
+                automate_kegg_id("HMDB_down(CxDM1).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 1:
+                automate_kegg_id("HMDB_down(CxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            elif m.get() == 2:
+                automate_kegg_id("HMDB_down(DxDM1+I).csv")
+                messagebox.showinfo("Success!", res)
+            else:
+                messagebox.showerror("Failed!", failed)
+        else:
+            messagebox.showerror("Failed!", failed)
+
     btn_7 = Button(tab7, text="Generate", command=automation)
-    btn_7.place(x=380, y=300)
+    btn_7.place(x=330, y=300)
+    btn_7 = Button(tab7, text="Merge files", command=csv_merged)
+    btn_7.place(x=400, y=300)
+    btn_7 = Button(tab7, text="Automate", command=kegg_automate)
+    btn_7.place(x=480, y=300)
     window.mainloop()
 
 
@@ -936,21 +1004,38 @@ def automate_db(file, adduct, tolerance_number, file_name):
     # print('Time: ', stop - start)
 
 
-def automate_kegg_id(file):
+# automate by accessing to the map_pathway website
+def automate_kegg_id(file, output_file):
     # get the kegg_id column from the hmdb excel file(s)
-    kegg_list = read_all_data(file)[3]
     storage = []
+    visited = []
+    with open(file, "r") as source:
+        reader = csv.reader(source)
+        with open(output_file, "w", newline='') as result:
+            writer = csv.writer(result)
+            for row in reader:
+                if row[3] != "n/a" and row[3].replace(" ", "") not in storage:
+                    storage.append(row[3])
+                    writer.writerow(row)
 
-    for el in range(1, len(kegg_list)):
-        if el != "n/a":
-            storage.append(el)
+
+    # access to pathway website to automate
+    # hmdb.automate_kegg(storage)
 
     return storage
 
 
+# merge csv files based on filename
+def merge_csv(filename, output_file):
+    path = "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/"
+    all_files = glob.glob(os.path.join(path, filename + "_*.csv"))
+    df_merged = pd.concat([pd.read_csv(f) for f in all_files], ignore_index=True)
+    df_merged.to_csv(output_file, index=False)
 
-tkinter_window()
 
+# tkinter_window()
+
+print(automate_kegg_id("HMDB_up(CxDM1)_1.csv", "new.csv"))
 # defining function for random
 # string id with parameter
 # def ran_gen(size, chars=string.ascii_uppercase + string.digits):

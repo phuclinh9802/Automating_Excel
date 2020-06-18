@@ -48,14 +48,14 @@ def automate_hmdb(table, adduct, tolerance_number):
     submit_1 = browser.find_by_value("Download Results As CSV").first.click()
 
 
-
-
 def automate_kegg(kegg_list):
     # open map pathway website
     browser = browser_open("https://www.genome.jp/kegg/tool/map_pathway1.html")
     # rno mode
-    browser.fill("s_map", "rno")
+    rno = browser.find_by_id("s_map")
+    rno.fill("rno")
 
-    browser.fill("s_q", '\n'.join(str(k) for k in kegg_list))
+    textarea = browser.find_by_id("s_q")
+    textarea.fill('\n'.join(str(k) for k in kegg_list))
 
     browser.find_by_value("Exec").first.click()

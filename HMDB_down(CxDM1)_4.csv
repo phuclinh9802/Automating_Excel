@@ -1,3 +1,0 @@
-query_mass,compound_id,compound_name,kegg_id,formula,monoisotopic_mass,adduct,adduct_type,adduct_m/z,delta(ppm)
-120.0288164,HMDB0001147,Aminomalonic acid,C00872,C3H5NO4,119.021857653,M+H,+,120.029134,3
-120.0288164,HMDB0034259,Bovinocidin,C05669,C3H5NO4,119.021857653,M+H,+,120.029134,3
