@@ -1016,13 +1016,12 @@ def automate_kegg_id(file, output_file):
             for row in reader:
                 if row[3] != "n/a" and row[3].replace(" ", "") not in storage:
                     storage.append(row[3])
-                    writer.writerow(row)
+
 
 
     # access to pathway website to automate
-    # hmdb.automate_kegg(storage)
+    hmdb.automate_kegg(storage)
 
-    return storage
 
 
 # merge csv files based on filename
@@ -1035,18 +1034,46 @@ def merge_csv(filename, output_file):
 
 # tkinter_window()
 
-print(automate_kegg_id("HMDB_up(CxDM1)_1.csv", "new.csv"))
-# defining function for random
-# string id with parameter
-# def ran_gen(size, chars=string.ascii_uppercase + string.digits):
-#     return ''.join(random.choice(chars) for x in range(size))
-#
-#
-# # function call for random string
-# # generation with size 8 and string
-#
-# for x in range(5):
-#     print(ran_gen(1, "CD") + ran_gen(5, "0123456789"))
+def get_pathways(rest):
+    response = requests.get(rest)
+    content = response.content
+    decoded_string = content.decode("unicode_escape")
+
+    list = decoded_string.split(" - Rattus norvegicus (rat)\n")
+    for x in range(len(list)):
+        list[x] = list[x].split("\t")
+        # print(list[x])
+
+    for x in range(len(list)):
+        list[x][0] = list[x][0][5:13]
+
+    # remove last element
+    list.pop()
+
+    transpose = []
+
+    for x in range(len(list[0])):
+        record = []
+        for y in range(len(list)):
+            record.append(list[y][x])
+        transpose.append(record)
+
+    print(transpose)
+
+
+
+
+    pathway = []
+
+    # for x in range(len(list) - 1):
+    #     pathway.append(list[x][1])
+    #     print(pathway[x])
+
+
+automate_kegg_id("HMDB_up(CxDM1)_1.csv", "new.csv")
+
+# get_pathways("http://rest.kegg.jp/list/pathway/rno")
+
 
 # print(read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0])
 

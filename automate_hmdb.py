@@ -47,6 +47,8 @@ def automate_hmdb(table, adduct, tolerance_number):
     # download as csv
     submit_1 = browser.find_by_value("Download Results As CSV").first.click()
 
+def removing(string):
+    return "".join(string.split("  "))
 
 def automate_kegg(kegg_list):
     # open map pathway website
@@ -59,3 +61,25 @@ def automate_kegg(kegg_list):
     textarea.fill('\n'.join(str(k) for k in kegg_list))
 
     browser.find_by_value("Exec").first.click()
+
+    browser.click_link_by_text('Show matched objects')
+    print(browser.find_by_css("ul pre li:nth-child(2) a:nth-child(1)").value)
+    list = browser.find_by_css("ul pre li:nth-child(2) div").value.split("\n")
+    # print(list)
+
+    for x in range(len(list)):
+        list[x] = removing(list[x])
+        print(list[x])
+    # print(browser.find_by_css("ul pre li:nth-child(1) div a:nth-child(1)").value)
+
+    i = 1
+    j = 1
+    kegg = []
+    try:
+        while browser.find_by_css("ul pre li:nth-child(2) div a:nth-child(" + str(i) + ")").value is not None:
+            kegg.append(browser.find_by_css("ul pre li:nth-child(2) div a:nth-child(" + str(i) + ")").value)
+            i += 1
+    except:
+        print("Loop has been stopped!")
+
+    time.sleep(86400)
