@@ -331,7 +331,7 @@ def tkinter_window():
             check_percentage("COF_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "PPF":
-            check_percentage("PP_Group.xlsx")
+            check_percentage("PPF_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "TAMF":
             check_percentage("TAMM_Group.xlsx")
@@ -340,7 +340,7 @@ def tkinter_window():
             check_percentage("COF_Muscle_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "PP":
-            check_percentage("COF_Muscle_Group.xlsx")
+            check_percentage("PP_Muscle_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "TAMM":
             check_percentage("TAMM_Muscle_Group.xlsx")
@@ -747,8 +747,8 @@ def check_percentage(string):
                     sheet.cell(row=x, column=y).value = None
     else:
         for x in range(2, row + 1):
-            if sheet.cell(row=x, column=7).value/5.0 < 0.65:
-                sheet.cell(row=x, column=7).value = 0
+            if sheet.cell(row=x, column=column).value/float(column - 2.0) < 0.65:
+                sheet.cell(row=x, column=column).value = 0
                 for y in range(2, column):
                     sheet.cell(row=x, column=y).value = None
 
