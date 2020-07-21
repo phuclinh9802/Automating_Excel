@@ -44,8 +44,13 @@ def replace_empty(lists):
 #     workbook.close()
 
 # create calculated data from original table
-def new_file_calculated(lists, cols):
-    workbook = xlsxwriter.Workbook('calculated_data_2.xlsx')
+def new_file_calculated(lists, cols, str):
+    if str == "Raw_data_and_steps_Diabetes_data.xlsx":
+        workbook = xlsxwriter.Workbook('calculated_data_Raw.xlsx')
+    elif str == "Fish Liver.xlsx":
+        workbook = xlsxwriter.Workbook('calculated_data_FL.xlsx')
+    elif str == "Fish Muscle.xlsx":
+        workbook = xlsxwriter.Workbook('calculated_data_FM.xlsx')
     worksheet = workbook.add_worksheet()
 
     for x in range(cols):
@@ -112,16 +117,28 @@ def read_data(str):
         record = []
         count += 1
         for x in range(rows):
-            if 0 < y < 16:
-                if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 16).value, float):
-                    if ws.cell(x, y).value - ws.cell(x, 16).value >=0:
-                        record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
+            if str == "Raw_data_and_steps_Diabetes_data.xlsx" or str == "Fish Muscle.xlsx":
+                if 0 < y < 16:
+                    if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 16).value, float):
+                        if ws.cell(x, y).value - ws.cell(x, 16).value >=0:
+                            record.append(ws.cell(x, y).value - ws.cell(x, 16).value)
+                        else:
+                            record.append(None)
                     else:
-                        record.append(None)
+                        record.append(ws.cell(x, y).value)
                 else:
                     record.append(ws.cell(x, y).value)
-            else:
-                record.append(ws.cell(x, y).value)
+            elif str == "Fish Liver.xlsx":
+                if 0 < y < 15:
+                    if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 15).value, float):
+                        if ws.cell(x, y).value - ws.cell(x, 15).value >= 0:
+                            record.append(ws.cell(x, y).value - ws.cell(x, 15).value)
+                        else:
+                            record.append(None)
+                    else:
+                        record.append(ws.cell(x, y).value)
+                else:
+                    record.append(ws.cell(x, y).value)
         new_record = record
         table.append(new_record)
 
@@ -129,7 +146,7 @@ def read_data(str):
     replace_empty(table)
 
     # separating calculations to another xlsx file
-    new_file_calculated(table, count)
+    new_file_calculated(table, count, str)
 
     return table
 
@@ -142,30 +159,73 @@ def produce_table_only(string):
 
 
 # produce a new data with count
-def produce_count_data(string):
-    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")
-    separated_table = separating_group(original_table, string)
+def produce_count_data(string, filename):
+    original_table = read_data(filename)
+    separated_table = separating_group(original_table, string, filename)
+    if filename == "Raw_data_and_steps_Diabetes_data.xlsx":
+        if string == "Control":
+            workbook = xlsxwriter.Workbook('Control_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "Diabetes":
+            workbook = xlsxwriter.Workbook('Diabetes_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "Diabetes+Insulin":
+            workbook = xlsxwriter.Workbook('Diabetes_Insulin_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        else:
+            print("Please Try Again!")
+    elif filename == "Fish Liver.xlsx":
+        if string == "COF":
+            workbook = xlsxwriter.Workbook('COF_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "PPF":
+            workbook = xlsxwriter.Workbook('PPF_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "TAMF":
+            workbook = xlsxwriter.Workbook('TAMF_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        else:
+            print("Please Try Again!")
+    elif filename == "Fish Muscle.xlsx":
+        if string == "COF":
+            workbook = xlsxwriter.Workbook('COF_Muscle_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "PP":
+            workbook = xlsxwriter.Workbook('PP_Muscle_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "TAMM":
+            workbook = xlsxwriter.Workbook('TAMM_Muscle_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        else:
+            print("Please Try Again!")
 
-    if string == "Control":
-        workbook = xlsxwriter.Workbook('Control_Group.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(separated_table)):
-            worksheet.write_column(0, x, separated_table[x])
-        workbook.close()
-    elif string == "Diabetes":
-        workbook = xlsxwriter.Workbook('Diabetes_Group.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(separated_table)):
-            worksheet.write_column(0, x, separated_table[x])
-        workbook.close()
-    elif string == "Diabetes+Insulin":
-        workbook = xlsxwriter.Workbook('Diabetes_Insulin_Group.xlsx')
-        worksheet = workbook.add_worksheet()
-        for x in range(len(separated_table)):
-            worksheet.write_column(0, x, separated_table[x])
-        workbook.close()
-    else:
-        print("Please Try Again!")
 
 
 # Build a GUI to automatically calculate and generate a new separated file
@@ -203,7 +263,7 @@ def tkinter_window():
 
 
     # tab 1
-    lbl = Label(tab1, text="Excel File Name")
+    lbl = Label(tab1, text="Excel File Name (Raw_data_and_steps_Diabetes_data.xlsx)")
     lbl.pack(padx=2, pady=2)
 
     txt = Entry(tab1, width=40)
@@ -219,21 +279,30 @@ def tkinter_window():
     btn.pack(padx=5, pady=5)
 
     # tab 2
-    lbl_2 = Label(tab2, text="Group Name: Control, Diabetes, Diabetes+Insulin")
+    lbl_2 = Label(tab2, text="Group Name: Control, Diabetes, Diabetes+Insulin, COF, PPF, TAMF, PP, TAMM")
     lbl_2.pack(padx=2, pady=2)
 
     txt_2 = Entry(tab2, width=40)
     txt_2.pack(padx=2, pady=2)
 
+    txt_2_1 = Entry(tab2, width=40)
+    txt_2_1.pack(padx=2, pady=2)
+
     def separate():
         res = "Group name has been entered"
         failed_msg = 'There is no such group. Please try again'
         text = txt_2.get()
+        text_1 = txt_2_1.get()
         # if text != 'Control' or text != 'Diabetes' or text != 'Diabetes+Insulin':
         #     messagebox.showinfo('Failed!', failed_msg)
-        if text == "Control" or text == "Diabetes" or text == "Diabetes+Insulin":
-            produce_count_data(text)
+        if text == "Control" or text == "Diabetes" or text == "Diabetes+Insulin" or text == "PPF" or text == "TAMF" or text == "PP" or text == "TAMM" :
+            produce_count_data(text, text_1)
             messagebox.showinfo('Success!', res)
+        elif text == "COF":
+            if text_1 == "Fish Liver.xlsx":
+                produce_count_data(text, "Fish Liver.xlsx")
+            elif text_1 == "Fish Muscle.xlsx":
+                produce_count_data(text, "Fish Muscle.xlsx")
 
     btn_2 = Button(tab2, text="Generate", command=separate)
     btn_2.pack(padx=5, pady=5)
@@ -257,6 +326,24 @@ def tkinter_window():
             messagebox.showinfo('Success!', res)
         elif text == "Diabetes+Insulin":
             check_percentage("Diabetes_Insulin_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "COF":
+            check_percentage("COF_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "PPF":
+            check_percentage("PP_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "TAMF":
+            check_percentage("TAMM_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "COF Muscle":
+            check_percentage("COF_Muscle_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "PP":
+            check_percentage("COF_Muscle_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "TAMM":
+            check_percentage("TAMM_Muscle_Group.xlsx")
             messagebox.showinfo('Success!', res)
         else:
             messagebox.showinfo('Failed!', failed)
@@ -589,13 +676,23 @@ def abbreviation(table, string):
         table.append("DM1")
     elif string == "Diabetes+Insulin":
         table.append("DM1+I")
+    elif string == "COF":
+        table.append("COF")
+    elif string == "PP":
+        table.append("PP")
+    elif string == "TAMM":
+        table.append("TAMM")
+    elif string == "PPF":
+        table.append("PPF")
+    elif string == "TAMF":
+        table.append("TAMF")
 
 
 # separate group
-def separating_group(table, string):
+def separating_group(table, string, filename):
     count = 0
     tab = []
-    original_table = read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0]
+    original_table = read_data(filename)[0]
     slicing = slice(1, len(original_table))
     tab.append(original_table[slicing])
 
@@ -617,9 +714,10 @@ def separating_group(table, string):
                 count += 1
         count_table.append(count)
 
+    print(tab)
     # appending the count table to count the appearance of data each row
     tab.append(count_table)
-
+    print(count_table)
     return tab
 
 
@@ -639,11 +737,20 @@ def check_percentage(string):
     sheet = wb['Sheet1']
     row = sheet.max_row
     column = sheet.max_column
-    for x in range(2, row + 1):
-        if sheet.cell(row=x, column=7).value/5.0 < 0.65:
-            sheet.cell(row=x, column=7).value = 0
-            for y in range(2, column):
-                sheet.cell(row=x, column=y).value = None
+
+    print(column)
+    if string == "COF_Muscle" or string == "PP_Muscle" or string == "TAMM_Muscle":
+        for x in range(2, row + 1):
+            if sheet.cell(row=x, column=8).value/6.0 < 0.65:
+                sheet.cell(row=x, column=8).value = 0
+                for y in range(2, column):
+                    sheet.cell(row=x, column=y).value = None
+    else:
+        for x in range(2, row + 1):
+            if sheet.cell(row=x, column=7).value/5.0 < 0.65:
+                sheet.cell(row=x, column=7).value = 0
+                for y in range(2, column):
+                    sheet.cell(row=x, column=y).value = None
 
     wb.save(string)
 
@@ -1032,8 +1139,9 @@ def merge_csv(filename, output_file):
     df_merged.to_csv(output_file, index=False)
 
 
-# tkinter_window()
+tkinter_window()
 
+# get pathways - metabolism data
 def get_pathways(rest):
     response = requests.get(rest)
     content = response.content
@@ -1058,19 +1166,36 @@ def get_pathways(rest):
             record.append(list[y][x])
         transpose.append(record)
 
+
     print(transpose)
 
+    return transpose
+
+    # transpose.append(["Carbohydrate metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Metabolism of cofactors and vitamins", "Lipid Metabolism", "Energy Metabolism", "Amino acid metabolism", "Nucleotide metabolism", "Biosynthesis of other secondary metabolites", "Nucleotide metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism","Amino acid metabolism", "Metabolism of other amino acids", "Metabolism of other amino acids", "Metabolism of other amino acids", "Metabolism of other amino acids", "Metabolism of other amino acids", "Metabolism of other amino acids", "Metabolism of other amino acids",
+    #                   "Carbohydrate metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Carbohydrate metabolism", "Biosynthesis of other secondary metabolites", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Lipid Metabolism", "Carbohydrate metabolism", "Glycan biosynthesis and metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism", "Lipid Metabolism",
+    #                   "Lipid Metabolism", "Lipid Metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Glycan biosynthesis and metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Carbohydrate Metabolism", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of cofactors and vitamins", "Metabolism of terpenoids and polyketides", "Energy metabolism", "Energy metabolism", "Translation", "Xenobiotics biodegradation and metabolism", "Xenobiotics biodegradation and metabolism", "Xenobiotics biodegradation and metabolism", "Lipid Metabolism", "Global and overview maps", "Global and overview maps", "Global and overview maps", "Global and overview maps", "Global and overview maps", "Drug resistance: antineoplastic", "Drug resistance: antineoplastic", "Drug resistance: antineoplastic", "Drug resistance: antineoplastic", "Membrane Transport",
+    #                   "Translation", "Translation", "Translation", "Translation", "Folding, sorting and degradation", "Transcription", "Transcription", "Replication and repair", "Transcription", "Folding, sorting and degradation",
+    #                   "Folding, sorting and degradation", "Endocrine system", "Replication and repair", "Replication and repair", "Replication and repair", "Replication and repair", "Replication and repair", "Replication and repair", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signaling molecules and interaction", "Signaling molecules and interaction", "Immune system", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Signaling molecules and interaction", "Cell growth and death", "Cell growth and death", "Cell growth and death", "Folding, sorting and degradation", "Folding, sorting and degradation", "Folding, sorting and degradation", "Transport and catabolism", "Transport and catabolism", "Transport and catabolism", "Folding, sorting and degradation", "Transport and catabolism", "Transport and catabolism", "Transport and catabolism", "Transport and catabolism", "Signal transduction", "Signal transduction", "Signal transduction", "Cell growth and death", "Aging", "Aging", "Cell growth and death", "Cell growth and death", "Cell growth and death", "Cell growth and death", "Circulatory system", "Circulatory system", "Circulatory system", "Signal transduction", "Signal transduction", "Signal transduction", "Signal transduction", "Development and regeneration",
+    #                   "Signal transduction", "Signal transduction", "Development and regeneration", "Signal transduction", "Signal transduction", "Cellular community - eukaryotes", "Signaling molecules and interaction", "Signaling molecules and interaction", "Cellular community - eukaryotes", "Cellular community - eukaryotes", "Cellular community - eukaryotes", "Cellular community - eukaryotes", "Immune System", "Immune System", "Immune System", "Endocrine system", "Immune System", "Immune system", "Immune system", "Immune system", "Immune system", "Immune system", "Signal transduction", "Immune System", "Immune System", "Immune System", "Immune System", "Immune System", "Immune System", "Immune System", "Immune System", "Signal Transduction", "Immune System", "Immune System", "Immune System", "Environmental adaptation", "Environmental adaptation", "Environmental adaptation", "Nervous system", "Nervous system", "Nervous System", "Nervous System", "Nervous System", "Nervous System", "Nervous System", "Nervous System", "Nervous System", "Nervous System", "Sensory system", "Sensory system", "Sensory system", "Sensory system", "Cell motility", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine system", "Endocrine and metabolic disease", "Endocrine and metabolic disease", "Endocrine and metabolic disease", "Endocrine and metabolic disease", "Endocrine and metabolic disease", "Endocrine system", "Endocrine and metabolic disease",
+    #                   "Endocrine and metabolic disease", "Excretory system", "Excretory system", "Excretory system", "Excretory system", "Excretory system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Digestive system", "Neurodegenerative disease", "Neurodegenerative disease", "Neurodegenerative disease", "Neurodegenerative disease", "Neurodegenerative disease", "Neurodegenerative disease", "Substance dependence", "Substance dependence", "Substance dependence", "Substance dependence", "Substance dependence", "Infectious disease: bacterial", "Infectious disease: bacterial", "Infectious disease: bacterial", "Infectious disease: bacterial", "Infectious disease: bacterial", "Infectious disease: parasitic", "Infectious disease: parasitic", "Infectious disease: parasitic", "Infectious disease: parasitic", "Infectious disease: parasitic", "Infectious disease: parasitic", "Infectious disease: bacterial", "Infectious disease: bacterial", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Infectious disease: viral", "Cancer: overview", "Cancer: overview", "Cancer: overview", "Cancer: overview", "Cancer: overview", "Cancer: overview", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types", "Cancer: specific types",
+    #                   "Cancer: overview", "Cancer: overview", "Cancer: overview", "Immune disease", "Immune disease", "Immune disease", "Immune disease", "Immune disease", "Immune disease", "Immune disease", "Immune disease", "Cardiovascular disease", "Cardiovascular disease", "Cardiovascular disease", "Cardiovascular disease", "Cardiovascular disease"]) # stop at row 229, continue at row 230
+
+    # workbook = xlsxwriter.Workbook('pathway_list.xlsx')
+    # worksheet = workbook.add_worksheet()
+    #
+    # for x in range(3):
+    #     worksheet.write_column(0, x, transpose[x])
+    # workbook.close()
 
 
-
-    pathway = []
+    # pathway = []
 
     # for x in range(len(list) - 1):
     #     pathway.append(list[x][1])
     #     print(pathway[x])
 
 
-automate_kegg_id("HMDB_up(CxDM1)_1.csv", "new.csv")
+# automate_kegg_id("HMDB_up(CxDM1)_1.csv", "new.csv")
 
 # get_pathways("http://rest.kegg.jp/list/pathway/rno")
 
