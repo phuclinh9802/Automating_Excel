@@ -237,6 +237,43 @@ def produce_count_data(string, filename):
             for x in range(len(separated_table)):
                 worksheet.write_column(0, x, separated_table[x])
             workbook.close()
+    elif filename == "20200625_HIV_KSHV_MZMineOutput.xlsx":
+        if string == "QC":
+            workbook = xlsxwriter.Workbook('QC_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "Before":
+            workbook = xlsxwriter.Workbook('Before_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "After":
+            workbook = xlsxwriter.Workbook('After_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "KSHV+HIV+":
+            workbook = xlsxwriter.Workbook('KSHV+HIV+_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "KSHV+HIV-":
+            workbook = xlsxwriter.Workbook('KSHV+HIV-_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "KSHV-HIV-":
+            workbook = xlsxwriter.Workbook('KSHV-HIV-_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
         else:
             print("Please Try Again!")
 
@@ -323,14 +360,14 @@ def tkinter_window():
         text_1 = txt_2_1.get()
         # if text != 'Control' or text != 'Diabetes' or text != 'Diabetes+Insulin':
         #     messagebox.showinfo('Failed!', failed_msg)
-        if text == "Control" or text == "Diabetes" or text == "Diabetes+Insulin" or text == "PPF" or text == "TAMF" or text == "PP" or text == "TAMM" :
-            produce_count_data(text, text_1)
-            messagebox.showinfo('Success!', res)
-        elif text == "COF":
+        if text == "COF":
             if text_1 == "Fish Liver.xlsx":
                 produce_count_data(text, "Fish Liver.xlsx")
             elif text_1 == "Fish Muscle.xlsx":
                 produce_count_data(text, "Fish Muscle.xlsx")
+        else:
+            produce_count_data(text, text_1)
+            messagebox.showinfo('Success!', res)
 
     btn_2 = Button(tab2, text="Generate", command=separate)
     btn_2.pack(padx=5, pady=5)
@@ -372,6 +409,24 @@ def tkinter_window():
             messagebox.showinfo('Success!', res)
         elif text == "TAMM":
             check_percentage("TAMM_Muscle_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "QC":
+            check_percentage("QC_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "Before":
+            check_percentage("Before_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "After":
+            check_percentage("After_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "KHSV+HIV+":
+            check_percentage("KHSV+HIV+_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "KHSV+HIV-":
+            check_percentage("KHSV+HIV-_Group.xlsx")
+            messagebox.showinfo('Success!', res)
+        elif text == "KHSV-HIV-":
+            check_percentage("KHSV-HIV-_Group.xlsx")
             messagebox.showinfo('Success!', res)
         else:
             messagebox.showinfo('Failed!', failed)
@@ -788,6 +843,18 @@ def abbreviation(table, string):
         table.append("PPF")
     elif string == "TAMF":
         table.append("TAMF")
+    elif string == "QC":
+        table.append("QC")
+    elif string == "Before":
+        table.append("Before")
+    elif string == "After":
+        table.append("After")
+    elif string == "KSHV+HIV+":
+        table.append("KSHV+HIV+")
+    elif string == "KSHV+HIV-":
+        table.append("KSHV+HIV-")
+    elif string == "KSHV-HIV-":
+        table.append("KSHV-HIV-")
 
 
 # separate group
