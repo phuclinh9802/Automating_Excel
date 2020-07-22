@@ -45,12 +45,15 @@ def replace_empty(lists):
 
 # create calculated data from original table
 def new_file_calculated(lists, cols, str):
+    print(str)
     if str == "Raw_data_and_steps_Diabetes_data.xlsx":
         workbook = xlsxwriter.Workbook('calculated_data_Raw.xlsx')
     elif str == "Fish Liver.xlsx":
         workbook = xlsxwriter.Workbook('calculated_data_FL.xlsx')
     elif str == "Fish Muscle.xlsx":
         workbook = xlsxwriter.Workbook('calculated_data_FM.xlsx')
+    elif str == "20200625_HIV_KSHV_MZMineOutput.xlsx":
+        workbook = xlsxwriter.Workbook('calculated_data_HIV.xlsx')
     worksheet = workbook.add_worksheet()
 
     for x in range(cols):
@@ -133,6 +136,17 @@ def read_data(str):
                     if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 15).value, float):
                         if ws.cell(x, y).value - ws.cell(x, 15).value >= 0:
                             record.append(ws.cell(x, y).value - ws.cell(x, 15).value)
+                        else:
+                            record.append(None)
+                    else:
+                        record.append(ws.cell(x, y).value)
+                else:
+                    record.append(ws.cell(x, y).value)
+            elif str == "20200625_HIV_KSHV_MZMineOutput.xlsx":
+                if 1 < y < 53:
+                    if isinstance(ws.cell(x, y).value, float) and isinstance(ws.cell(x, 1).value, float):
+                        if ws.cell(x, y).value - ws.cell(x, 1).value >= 0:
+                            record.append(ws.cell(x, y).value - ws.cell(x, 1).value)
                         else:
                             record.append(None)
                     else:
@@ -263,16 +277,30 @@ def tkinter_window():
 
 
     # tab 1
-    lbl = Label(tab1, text="Excel File Name (Raw_data_and_steps_Diabetes_data.xlsx)")
+    lbl = Label(tab1, text="Choose file to calculate")
     lbl.pack(padx=2, pady=2)
 
-    txt = Entry(tab1, width=40)
-    txt.pack(padx=2, pady=2)
+    rad = IntVar()
+    radio_1 = Radiobutton(tab1, text="Raw_data_and_steps_Diabetes_data.xlsx", variable=rad, value=0)
+    radio_1.pack(anchor=W)
+    radio_2 = Radiobutton(tab1, text="Fish Liver.xlsx", variable=rad, value=1)
+    radio_2.pack(anchor=W)
+    radio_3 = Radiobutton(tab1, text="Fish Muscle.xlsx", variable=rad, value=2)
+    radio_3.pack(anchor=W)
+    radio_4 = Radiobutton(tab1, text="20200625_HIV_KSHV_MZMineOutput.xlsx", variable=rad, value=3)
+    radio_4.pack(anchor=W)
 
     # generate a new xlsx file
     def clicked():
         res = "File has been entered."
-        read_data(txt.get())
+        if rad.get() == 0:
+            read_data("Raw_data_and_steps_Diabetes_data.xlsx")
+        elif rad.get() == 1:
+            read_data("Fish Liver.xlsx")
+        elif rad.get() == 2:
+            read_data("Fish Muscle.xlsx")
+        elif rad.get() == 3:
+            read_data("20200625_HIV_KSHV_MZMineOutput.xlsx")
         messagebox.showinfo('Success!', res)
 
     btn = Button(tab1, text="Generate", command=clicked)
@@ -334,7 +362,7 @@ def tkinter_window():
             check_percentage("PPF_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "TAMF":
-            check_percentage("TAMM_Group.xlsx")
+            check_percentage("TAMF_Group.xlsx")
             messagebox.showinfo('Success!', res)
         elif text == "COF Muscle":
             check_percentage("COF_Muscle_Group.xlsx")
@@ -355,6 +383,10 @@ def tkinter_window():
     lbl_4 = Label(tab4, text="Generate Final Data")
     lbl_4.pack(padx=2, pady=2)
 
+    txt_4 = Entry(tab4, width=40)
+    txt_4.pack(padx=2, pady=2)
+
+
     def final():
         start = timeit.default_timer()
         res = "Perfect! The file is being processed."
@@ -363,28 +395,98 @@ def tkinter_window():
         control_table = read_group_data_with_average("Control_Group.xlsx")
         diabetes_table = read_group_data_with_average("Diabetes_Group.xlsx")
         diabetes_insulin_table = read_group_data_with_average("Diabetes_Insulin_Group.xlsx")
+        cof_table = read_group_data_with_average("COF_Group.xlsx")
+        ppf_table = read_group_data_with_average("PPF_Group.xlsx")
+        tamf_table = read_group_data_with_average("TAMF_Group.xlsx")
+        cof_muscle = read_group_data_with_average("COF_Muscle_Group.xlsx")
+        pp_table = read_group_data_with_average("PP_Muscle_Group.xlsx")
+        tamm_table = read_group_data_with_average("TAMM_Muscle_Group.xlsx")
 
+        file = txt_4.get()
         # remove rows that have no data
         i = 1
-        while i < len(control_table[0]):
-            if control_table[len(control_table) - 1][i] == 1 and diabetes_table[len(diabetes_table) - 1][i] == 1 and diabetes_insulin_table[len(diabetes_insulin_table) - 1][i] == 1:
-                remove_rows(control_table, i)
-                remove_rows(diabetes_table, i)
-                remove_rows(diabetes_insulin_table, i)
-            else:
-                i += 1
+        if file == "Raw":
+            while i < len(control_table[0]):
+                if control_table[len(control_table) - 1][i] == 1 and diabetes_table[len(diabetes_table) - 1][i] == 1 and diabetes_insulin_table[len(diabetes_insulin_table) - 1][i] == 1:
+                    remove_rows(control_table, i)
+                    remove_rows(diabetes_table, i)
+                    remove_rows(diabetes_insulin_table, i)
+                else:
+                    i += 1
 
-        # append to a big table
-        for x in range(len(control_table)):
-            final_table.append(control_table[x])
-        for x in range(1, len(diabetes_table)):
-            final_table.append(diabetes_table[x])
-        for x in range(1, len(diabetes_insulin_table)):
-            final_table.append(diabetes_insulin_table[x])
+            # append to a big table
+            for x in range(len(control_table)):
+                final_table.append(control_table[x])
+            for x in range(1, len(diabetes_table)):
+                final_table.append(diabetes_table[x])
+            for x in range(1, len(diabetes_insulin_table)):
+                final_table.append(diabetes_insulin_table[x])
+            save_csv(final_table, file)
+        elif file == "FL":
+            j = 1
+            k = 1
+            m = 1
+            while j < len(cof_table[0]):
+                if cof_table[len(cof_table) - 1][j] == 1 and ppf_table[len(ppf_table) - 1][j] == 1 and tamf_table[len(tamf_table) - 1][j] == 1:
+                    remove_rows(cof_table, j)
+                    remove_rows(ppf_table, j)
+                    remove_rows(tamf_table, j)
+                else:
+                    j += 1
+
+            # while k < len(ppf_table):
+            #     if ppf_table[len(ppf_table) - 1][k] == 1:
+            #         remove_rows(ppf_table, k)
+            #     else:
+            #         k += 1
+            # while m < len(tamf_table):
+            #     if tamf_table[len(tamf_table) - 1][k] == 1:
+            #         remove_rows(tamf_table, m)
+            #     else:
+            #         m += 1
+            # append to a big table
+            for x in range(len(cof_table)):
+                final_table.append(cof_table[x])
+            for x in range(1, len(ppf_table)):
+                final_table.append(ppf_table[x])
+            for x in range(1, len(tamf_table)):
+                final_table.append(tamf_table[x])
+            save_csv(final_table, file)
+        elif file == "FM":
+            j = 1
+
+            while j < len(cof_muscle[0]):
+                if cof_muscle[len(cof_muscle) - 1][j] == 1 and pp_table[len(pp_table) - 1][j] == 1 and tamm_table[len(tamm_table) - 1][j] == 1:
+                    remove_rows(cof_muscle, j)
+                    remove_rows(pp_table, j)
+                    remove_rows(tamm_table, j)
+                else:
+                    j += 1
+
+            # while k < len(ppf_table):
+            #     if ppf_table[len(ppf_table) - 1][k] == 1:
+            #         remove_rows(ppf_table, k)
+            #     else:
+            #         k += 1
+            # while m < len(tamf_table):
+            #     if tamf_table[len(tamf_table) - 1][k] == 1:
+            #         remove_rows(tamf_table, m)
+            #     else:
+            #         m += 1
+            # append to a big table
+            for x in range(len(cof_muscle)):
+                final_table.append(cof_muscle[x])
+            for x in range(1, len(pp_table)):
+                final_table.append(pp_table[x])
+            for x in range(1, len(tamm_table)):
+                final_table.append(tamm_table[x])
+            save_csv(final_table, file)
 
 
 
-        save_csv(final_table)
+
+
+
         messagebox.showinfo('Success!', res)
         stop = timeit.default_timer()
         print('Time: ', stop - start)
@@ -767,12 +869,26 @@ def remove_rows(table, i):
 
 
 # save to csv file
-def save_csv(table):
-    export_data = zip_longest(*table, fillvalue='')
-    with open('final_data.csv', 'w', newline='') as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
-        writer.writerows(export_data)
-    file.close()
+def save_csv(table, string):
+    if string == "Raw":
+        export_data = zip_longest(*table, fillvalue='')
+        with open('final_data_raw.csv', 'w', newline='') as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+            writer.writerows(export_data)
+        file.close()
+    elif string == "FL":
+        export_data = zip_longest(*table, fillvalue='')
+        with open('final_data_FL.csv', 'w', newline='') as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+            writer.writerows(export_data)
+        file.close()
+    elif string == "FM":
+        export_data = zip_longest(*table, fillvalue='')
+        with open('final_data_FM.csv', 'w', newline='') as file:
+            writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+            writer.writerows(export_data)
+        file.close()
+
 
 
 # average of group data : Control_Group.xlsx, Diabetes_Group.xlsx, Diabetes_Insulin_Group.xlsx
@@ -788,7 +904,7 @@ def calculate_average(string):
         for y in range(2, column):
             if sheet.cell(row=x, column=y).value is not None:
                 average = average + sheet.cell(row=x, column=y).value
-        average = average / 5.0
+        average = average / float(column - 2.0)
         col.append(average)
 
     change_to_1(col)
