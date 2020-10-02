@@ -6,7 +6,7 @@ from tkinter import ttk
 import timeit
 import xlsxwriter
 import csv
-from itertools import zip_longest
+from itertools import zip_longest, chain
 import random
 import string
 import numpy as np
@@ -49,7 +49,6 @@ def replace_empty(lists):
 
 # create calculated data from original table
 def new_file_calculated(lists, cols, str):
-    print(str)
     if str == "Raw_data_and_steps_Diabetes_data.xlsx":
         workbook = xlsxwriter.Workbook('calculated_data_Raw.xlsx')
     elif str == "Fish Liver.xlsx":
@@ -58,7 +57,11 @@ def new_file_calculated(lists, cols, str):
         workbook = xlsxwriter.Workbook('calculated_data_FM.xlsx')
     elif str == "20200625_HIV_KSHV_MZMineOutput.xlsx":
         workbook = xlsxwriter.Workbook('calculated_data_HIV.xlsx')
+    elif str == "Lipid_cells_data.xlsx":
+        workbook = xlsxwriter.Workbook('Lipid_cells.xlsx')
     worksheet = workbook.add_worksheet()
+
+
 
     for x in range(cols):
         worksheet.write_column(0, x, lists[x])
@@ -175,6 +178,8 @@ def read_data(str):
                         record.append(ws.cell(x, y).value)
                 else:
                     record.append(ws.cell(x, y).value)
+            elif str == "Lipid_cells_data.xlsx":
+                record.append(ws.cell(x,y).value)
         new_record = record
         table.append(new_record)
 
@@ -292,6 +297,33 @@ def produce_count_data(string, filename):
             workbook.close()
         elif string == "KSHV-HIV-":
             workbook = xlsxwriter.Workbook('KSHV-HIV-_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        else:
+            print("Please Try Again!")
+    elif filename == "Lipid_cells_data.xlsx":
+        if string == "Control":
+            workbook = xlsxwriter.Workbook('Control_Lipid_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "EtOH":
+            workbook = xlsxwriter.Workbook('EtOH_Lipid_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "Temp":
+            workbook = xlsxwriter.Workbook('Temp_Group.xlsx')
+            worksheet = workbook.add_worksheet()
+            for x in range(len(separated_table)):
+                worksheet.write_column(0, x, separated_table[x])
+            workbook.close()
+        elif string == "pH":
+            workbook = xlsxwriter.Workbook('pH_Lipid_Group.xlsx')
             worksheet = workbook.add_worksheet()
             for x in range(len(separated_table)):
                 worksheet.write_column(0, x, separated_table[x])
@@ -660,6 +692,8 @@ def tkinter_window():
     radio_up.pack(anchor=W)
     radio_down = Radiobutton(tab6, text="Down-regulated", variable=a, value=1)
     radio_down.pack(anchor=W)
+    radio_both = Radiobutton(tab6, text="Both", variable=a, value=2)
+    radio_both.pack(anchor=W)
 
     # generate up-regulated / down-regulated file based on radio choice
     def up_down():
@@ -682,6 +716,17 @@ def tkinter_window():
                 worksheet.write_column(0, x, table[x])
             workbook.close()
             messagebox.showinfo("Success!", res)
+        elif a.get() == 2:
+            table = up_down_regulated(txt_6.get() + "_" + txt_6_1.get() + "_p_value_log_2FC.xlsx", 2)
+            try:
+                workbook = xlsxwriter.Workbook('Up+Down (' + txt_6.get() + " x " + txt_6_1.get() + ').xlsx')
+                worksheet = workbook.add_worksheet()
+                for x in range(len(table)):
+                    worksheet.write_column(0, x, table[x])
+                workbook.close()
+            except:
+                messagebox.showerror("Error")
+            messagebox.showinfo("Success!", res)
         else:
             messagebox.showerror("Failed!", failed)
 
@@ -703,6 +748,9 @@ def tkinter_window():
     radio_up.pack(anchor=W, padx=2)
     radio_down = Radiobutton(tab7, text="Down-regulated", variable=n, value=1)
     radio_down.pack(anchor=W, padx=2)
+    radio_both = Radiobutton(tab7, text="Both", variable=n, value=2)
+    radio_both.pack(anchor=W, padx=2)
+
 
     lbl_7 = Label(tab7, text="Choose your adduct type(s)")
     lbl_7.place(x=600, y=40)
@@ -737,6 +785,10 @@ def tkinter_window():
             automate_db("Down (" + txt_7.get() + " x " + txt_7_1.get() + ").xlsx", lst, int(entry_7.get()),
                         "HMDB_down(" + txt_7.get() + "x" + txt_7_1.get() + ")")
             messagebox.showinfo("Success!", res)
+        elif n.get() == 2:
+            automate_db("Up+Down (" + txt_7.get() + " x " + txt_7_1.get() + ").xlsx", lst, int(entry_7.get()),
+                        "HMDB_both(" + txt_7.get() + "x" + txt_7_1.get() + ")")
+            messagebox.showinfo("Success!", res)
         else:
             messagebox.showerror("Failed!", failed)
 
@@ -745,31 +797,16 @@ def tkinter_window():
         res = "Yes! You have successfully merged the files"
         failed = "Please try again"
 
-
         if n.get() == 0:
-            if m.get() == 0:
-                merge_csv("HMDB_up(CxDM1)", "HMDB_up(CxDM1).csv")
-                messagebox.showinfo("Success!", res)
-            elif m.get() == 1:
-                merge_csv("HMDB_up(CxDM1+I)", "HMDB_up(CxDM1+I).csv")
-                messagebox.showinfo("Success!", res)
-            elif m.get() == 2:
-                merge_csv("HMDB_up(DxDM1+I)", "HMDB_up(DxDM1+I).csv")
-                messagebox.showinfo("Success!", res)
-            else:
-                messagebox.showerror("Failed!", failed)
+            merge_csv("HMDB_up(" + txt_7.get() + "x" + txt_7_1.get() + ")", "HMDB_up(" + txt_7.get() + "x" + txt_7_1.get() + ")" + ".csv")
+            messagebox.showinfo("Success!", res)
         elif n.get() == 1:
-            if m.get() == 0:
-                merge_csv("HMDB_down(CxDM1)", "HMDB_down(CxDM1).csv")
-                messagebox.showinfo("Success!", res)
-            elif m.get() == 1:
-                merge_csv("HMDB_down(CxDM1+I)", "HMDB_down(CxDM1+I).csv")
-                messagebox.showinfo("Success!", res)
-            elif m.get() == 2:
-                merge_csv("HMDB_down(DxDM1+I)", "HMDB_down(DxDM1+I).csv")
-                messagebox.showinfo("Success!", res)
-            else:
-                messagebox.showerror("Failed!", failed)
+            merge_csv("HMDB_down(" + txt_7.get() + "x" + txt_7_1.get() + ")", "HMDB_down(" + txt_7.get() + "x" + txt_7_1.get() + ")" + ".csv")
+            messagebox.showinfo("Success!", res)
+        elif n.get() == 2:
+            merge_csv("HMDB_both(" + txt_7.get() + "x" + txt_7_1.get() + ")", "HMDB_both(" + txt_7.get() + "x" + txt_7_1.get() + ")" + ".csv")
+            messagebox.showinfo("Success!", res)
+
         else:
             messagebox.showerror("Failed!", failed)
 
@@ -844,6 +881,12 @@ def abbreviation(table, string):
         table.append("KSHV+HIV-")
     elif string == "KSHV-HIV-":
         table.append("KSHV-HIV-")
+    elif string == "EtOH":
+        table.append("EtOH")
+    elif string == "Temp":
+        table.append("Temp")
+    elif string == "pH":
+        table.append("pH")
 
 
 # separate group
@@ -851,17 +894,23 @@ def separating_group(table, string, filename):
     count = 0
     tab = []
     original_table = read_data(filename)[0]
-    slicing = slice(1, len(original_table))
-    tab.append(original_table[slicing])
+    if filename != "Lipid_cells_data.xlsx":
+        slicing = slice(1, len(original_table))
+        tab.append(original_table[slicing])
+    else:
+        tab.append(original_table)
 
+    print(table[22])
     for y in range(len(table)):
         record = []
         if table[y][0] == string:
+            print(table[y][1])
             abbreviation(record, string)
             for x in range(len(table[1])):
                 if isinstance(table[y][x], float) or table[y][x] is None:
                     record.append(table[y][x])
             new_record = record
+            # print(new_record)
             tab.append(new_record)
 
     count_table = ["Count"]
@@ -872,10 +921,9 @@ def separating_group(table, string, filename):
                 count += 1
         count_table.append(count)
 
-    print(tab)
     # appending the count table to count the appearance of data each row
     tab.append(count_table)
-    print(count_table)
+    # print(count_table)
     return tab
 
 # separate group for data_processed files
@@ -923,13 +971,13 @@ def check_percentage(string):
     print(column)
     if string == "COF_Muscle" or string == "PP_Muscle" or string == "TAMM_Muscle":
         for x in range(2, row + 1):
-            if sheet.cell(row=x, column=8).value/6.0 < 0.65:
+            if sheet.cell(row=x, column=8).value/6.0 < 0.60:
                 sheet.cell(row=x, column=8).value = 0
                 for y in range(2, column):
                     sheet.cell(row=x, column=y).value = None
     else:
         for x in range(2, row + 1):
-            if sheet.cell(row=x, column=column).value/float(column - 2.0) < 0.65:
+            if sheet.cell(row=x, column=column).value/float(column - 2.0) < 0.60:
                 sheet.cell(row=x, column=column).value = 0
                 for y in range(2, column):
                     sheet.cell(row=x, column=y).value = None
@@ -987,11 +1035,11 @@ def calculate_average(string):
     col.append("AVG")
     for x in range(2, row + 1):
         average = 0.0
-        for y in range(2, column + 1):
+        for y in range(2, column):
             if sheet.cell(row=x, column=y).value is not None:
                 average = average + sheet.cell(row=x, column=y).value
         print(average)
-        average = average / float(column - 1.0)
+        average = average / float(column - 2.0)
         col.append(average)
 
     change_to_1(col)
@@ -1163,6 +1211,22 @@ def produce_combine_p(str1, str2, type, filetype):
         group_1 = "TAMF"
     elif str2 == "TAMF_new.xlsx":
         group_2 = "TAMF"
+    if str1 == "Control_Lipid_Group.xlsx":
+        group_1 = "CL"
+    elif str2 == "Control_Lipid_Group.xlsx":
+        group_2 = "CL"
+    if str1 == "EtOH_Lipid_Group.xlsx":
+        group_1 = "EtOH"
+    elif str2 == "EtOH_Lipid_Group.xlsx":
+        group_2 = "EtOH"
+    if str1 == "Temp_Lipid_Group.xlsx":
+        group_1 = "Temp"
+    elif str2 == "Temp_Lipid_Group.xlsx":
+        group_2 = "Temp"
+    if str1 == "pH_Lipid_Group.xlsx":
+        group_1 = "pH"
+    elif str2 == "pH_Lipid_Group.xlsx":
+        group_2 = "pH"
 
 
 
@@ -1176,13 +1240,15 @@ def produce_combine_p(str1, str2, type, filetype):
         table.append(get_mz_col("data_processed_FM_new.xlsx"))
     elif filetype == "HIV":
         table.append(get_mz_col("data_processed_HIV_kNN_new.xlsx"))
+    elif filetype == "Lipid":
+        table.append(get_mz_col("Control_Lipid_Group.xlsx"))
     # read data from specific groups
     table_1 = read_group_data(str1)
     table_2 = read_group_data(str2)
 
     # append each column into the table
     # str1 data
-    for x in range(1, len(table_1)):
+    for x in range(1, len(table_1) - 1):
         # insert name of group at the first row
         # table_1[x].insert(0, group_1)
         table.append(table_1[x])
@@ -1194,7 +1260,7 @@ def produce_combine_p(str1, str2, type, filetype):
     table.append(avg_1)
 
     # str2 data
-    for x in range(1, len(table_2)):
+    for x in range(1, len(table_2) - 1):
         # table_2[x].insert(0, group_2)
         table.append(table_2[x])
 
@@ -1264,6 +1330,16 @@ def up_down_regulated(file, up_or_down):
                     del x[i]
             else:
                 i += 1
+    elif up_or_down == 2:
+        while i < len(table[0]):
+            if table[len(table) - 2][i] == 0 and table[len(table) - 1][i] == 0:
+                for x in table:
+                    del x[i]
+            elif table[len(table) - 2][i] >= 0.05 or (-0.5849 <= table[len(table) - 1][i] <= 0.5849):
+                for x in table:
+                    del x[i]
+            else:
+                i += 1
     return table
 
 
@@ -1285,14 +1361,14 @@ def remove_first_row(file_to_read, new_filename):
 # produce data in new file with p value or p value and log
 def produce_file_p_log(table, str1, str2, type):
     if type == 0:
-        workbook = xlsxwriter.Workbook(str1.replace("_new.xlsx", "") + "_" + str2.replace("_new.xlsx", "") + "_p_value.xlsx")
+        workbook = xlsxwriter.Workbook(str1.replace("_new.xlsx", "").replace("_Group.xlsx","") + "_" + str2.replace("_new.xlsx", "").replace("_Group.xlsx","") + "_p_value.xlsx")
         worksheet = workbook.add_worksheet()
         for x in range(len(table)):
             worksheet.write_column(0, x, table[x])
         workbook.close()
 
     elif type == 1:
-        workbook = xlsxwriter.Workbook(str1.replace("_new.xlsx", "") + "_" + str2.replace("_new.xlsx", "") + "_p_value_log_2FC.xlsx")
+        workbook = xlsxwriter.Workbook(str1.replace("_new.xlsx", "").replace("_Group.xlsx","") + "_" + str2.replace("_new.xlsx", "").replace("_Group.xlsx","") + "_p_value_log_2FC.xlsx")
         worksheet = workbook.add_worksheet()
         for x in range(len(table)):
             worksheet.write_column(0, x, table[x])
@@ -1333,11 +1409,11 @@ def automate_db(file, adduct, tolerance_number, file_name):
     #     hmdb.automate_hmdb(record)
 
     record = []
-    while i <= math.ceil((len(table[0]) - 1) / 700):
+    while i <= math.ceil((len(table[0]) - 1) / 695):
         record = []
         j = 1
         while x < len(table[0]):
-            if j > 700:
+            if j > 695:
                 break
             else:
                 record.append(table[0][x])
@@ -1360,7 +1436,7 @@ def browser_open(website_path):
     # add chrome driver to execute
     # To use this, you need to download chromedriver from https://chromedriver.chromium.org/downloads and choose
     # the version of google chrome you are using. Then, specify the path in executable variable like below.
-    executable = {'executable_path': r'/Users/phucnguyen/Desktop/chromedriver'}
+    executable = {'executable_path': r'/Users/phucnguyen/Downloads/chromedriver'}
 
     options = webdriver.ChromeOptions()
 
@@ -1383,7 +1459,7 @@ def automate_hmdb(table, adduct, tolerance_number):
     # find id for textarea - query_masses
     # query_mass = browser.find_by_id("query_masses")
 
-    browser.fill("query_masses", '\n'.join(str(float(t) - 1.0) for t in table))
+    browser.fill("query_masses", '\n'.join(str(float(t)) for t in table))
     adduct_type = browser.find_by_id("adduct_type")
     for a in adduct:
         adduct_type.select(a)
@@ -1401,22 +1477,32 @@ def automate_hmdb(table, adduct, tolerance_number):
 
 
 # automate by accessing to the map_pathway website
-def automate_kegg_id(file, output_file):
+def automate_kegg_id(file, organic_type):
     # get the kegg_id column from the hmdb excel file(s)
     storage = []
     visited = []
     with open(file, "r") as source:
         reader = csv.reader(source)
-        with open(output_file, "w", newline='') as result:
-            writer = csv.writer(result)
-            for row in reader:
-                if row[3] != "n/a" and row[3].replace(" ", "") not in storage:
-                    storage.append(row[3])
+        for row in reader:
+            if row[3] != "n/a" and row[3].replace(" ", "") not in storage:
+                storage.append(row[3])
 
 
 
     # access to pathway website to automate
-    hm.automate_kegg(storage)
+    tab = hm.automate_kegg(storage, organic_type)
+
+    if 'HMDB_up' in file:
+        workbook = xlsxwriter.Workbook(file.replace('HMDB_up', '').replace(').csv', '') + ')_up_pathway.xlsx')
+    elif 'HMDB_down' in file:
+        workbook = xlsxwriter.Workbook(file.replace('HMDB_down', '').replace(').csv', '') + ')_down_pathway.xlsx')
+    elif 'HMDB_both' in file:
+        workbook = xlsxwriter.Workbook(file.replace('HMDB_both', '').replace(').csv', '') + ')_pathway.xlsx')
+    worksheet = workbook.add_worksheet()
+
+    for x in range(len(tab)):
+        worksheet.write_column(0, x, tab[x])
+    workbook.close()
 
 
 
@@ -1456,9 +1542,10 @@ def merge_csv(filename, output_file):
     #     print(pathway[x])
 
 
-automate_kegg_id("HMDB_up(BeforexAfter)_1.csv", "new.csv")
 
-
+# string = 'abcdef'
+#
+# print(string.replace('a', 'p').replace('f', 'z'))
 
 # print(read_data("Raw_data_and_steps_Diabetes_data.xlsx")[0])
 
@@ -1481,13 +1568,12 @@ automate_kegg_id("HMDB_up(BeforexAfter)_1.csv", "new.csv")
 
 # os.rename("/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/search.csv", "/Users/phucnguyen/PycharmProjects/Metabolomic_Data/Automating_Excel/up.csv")
 
-# tkinter_window()
 
 # csv_to_xlsx('data_processed_HIV_kNN (no QCs).csv')
 
 # remove_first_row("data_processed_HIV_kNN (no QCs).xlsx", "data_processed_HIV_kNN_new.xlsx")
 
-# data_separated_group("COF", "data_processed_FL_new.xlsx", "COF_new.xlsx")
+
 
 # print(calculate_average("COF_new.xlsx"))
 
@@ -1527,6 +1613,14 @@ automate_kegg_id("HMDB_up(BeforexAfter)_1.csv", "new.csv")
 # produce_combine_p("KSHV+HIV+_new.xlsx", "KSHV-HIV-_new.xlsx", 1, "HIV")
 # produce_combine_p("KSHV+HIV-_new.xlsx", "KSHV-HIV-_new.xlsx", 1, "HIV")
 
+# produce_combine_p("Control_Lipid_Group.xlsx", "EtOH_Lipid_Group.xlsx", 1, "Lipid")
+# produce_combine_p("Control_Lipid_Group.xlsx", "Temp_Group.xlsx", 1, "Lipid")
+# produce_combine_p("Control_Lipid_Group.xlsx", "pH_Lipid_Group.xlsx", 1, "Lipid")
+# produce_combine_p("EtOH_Lipid_Group.xlsx", "Temp_Group.xlsx", 1, "Lipid")
+# produce_combine_p("EtOH_Lipid_Group.xlsx", "pH_Lipid_Group.xlsx", 1, "Lipid")
+# produce_combine_p("Temp_Group.xlsx", "pH_Lipid_Group.xlsx", 1, "Lipid")
+
+
 
 # Before - After
 # Before - KSHV+HIV+
@@ -1538,3 +1632,49 @@ automate_kegg_id("HMDB_up(BeforexAfter)_1.csv", "new.csv")
 # KSHV+HIV+ - KSHV+HIV-
 # KSHV+HIV+ - KSHV-HIV-
 # KSHV+HIV- - KSHV-HIV-
+
+
+# tkinter_window()
+# print(read_data("Lipid_cells_data.xlsx"))
+
+# data_separated_group("COF", "data_processed_FL_new.xlsx", "COF_new.xlsx")
+
+# automate_kegg_id("HMDB_up(BeforexKSHV+HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(BeforexKSHV-HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(AfterxKSHV+HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(AfterxKSHV+HIV+)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(AfterxKSHV-HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(KSHV+HIV+xKSHV+HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(KSHV+HIV+xKSHV-HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_up(KSHV+HIV-xKSHV-HIV-)_1.csv", "hsa")
+# automate_kegg_id("HMDB_both(BeforexAfter).csv", "hsa")
+# automate_kegg_id("HMDB_both(BeforexKSHV+HIV+).csv", "hsa")
+# automate_kegg_id("HMDB_both(BeforexKSHV+HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(BeforexKSHV-HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(AfterxKSHV+HIV+).csv", "hsa")
+# automate_kegg_id("HMDB_both(AfterxKSHV+HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(AfterxKSHV-HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(KSHV+HIV+xKSHV+HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(KSHV+HIV+xKSHV-HIV-).csv", "hsa")
+# automate_kegg_id("HMDB_both(KSHV+HIV-xKSHV-HIV-).csv", "hsa")
+
+
+automate_kegg_id("HMDB_both(Control_LipidxEtOH_Lipid).csv", "ppu")
+automate_kegg_id("HMDB_both(Control_LipidxTemp).csv", "ppu")
+automate_kegg_id("HMDB_both(Control_LipidxpH_Lipid).csv", "ppu")
+automate_kegg_id("HMDB_both(EtOH_LipidxTemp).csv", "ppu")
+automate_kegg_id("HMDB_both(EtOH_LipidxpH_Lipid).csv", "ppu")
+automate_kegg_id("HMDB_both(TempxpH_Lipid).csv", "ppu")
+
+# table = read_all_data("Cells_data_combined.xlsx")
+# print(len(table))
+# sep_table = []
+# for x in range(len(table)):
+#     sep_table.append(table[x][476:])
+# workbook = xlsxwriter.Workbook('Lipid_cells_data.xlsx')
+# worksheet = workbook.add_worksheet()
+# for x in range(len(sep_table)):
+#     worksheet.write_column(0, x, sep_table[x])
+# workbook.close()
+#
+# print(table[0][476:])

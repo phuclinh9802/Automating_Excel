@@ -1,3 +1,5 @@
+from itertools import chain
+
 from splinter import Browser
 from selenium import webdriver
 import time
@@ -10,7 +12,7 @@ def browser_open(website_path):
     # add chrome driver to execute
     # To use this, you need to download chromedriver from https://chromedriver.chromium.org/downloads and choose
     # the version of google chrome you are using. Then, specify the path in executable variable like below.
-    executable = {'executable_path': r'/Users/phucnguyen/Desktop/chromedriver'}
+    executable = {'executable_path': r'/Users/phucnguyen/Downloads/chromedriver'}
 
     options = webdriver.ChromeOptions()
 
@@ -53,12 +55,12 @@ def automate_hmdb(table, adduct, tolerance_number):
 def removing(string):
     return "".join(string.split("  "))
 
-def automate_kegg(kegg_list):
+def automate_kegg(kegg_list, organic_type):
     # open map pathway website
     browser = browser_open("https://www.genome.jp/kegg/tool/map_pathway1.html")
     # rno mode
     rno = browser.find_by_id("s_map")
-    rno.fill("rno")
+    rno.fill(organic_type)
 
     textarea = browser.find_by_id("s_q")
     textarea.fill('\n'.join(str(k) for k in kegg_list))
@@ -75,37 +77,83 @@ def automate_kegg(kegg_list):
             a += 1
     except:
         print("Loop is done")
-    list = browser.find_by_css("ul pre li:nth-child(2) div").value.split("\n")
-    # print(list)
-
-    for x in range(len(list)):
-        list[x] = removing(list[x])
+    # list = browser.find_by_css("ul pre li:nth-child(2) div").value.split("\n")
+    # # print(list)
+    #
+    # for x in range(len(list)):
+    #     list[x] = removing(list[x])
         # print(list[x])
     # print(browser.find_by_css("ul pre li:nth-child(1) div a:nth-child(1)").value)
 
+    kegg = []
+    m = 1
+    n = 1
+    cpd_count = 0
+    try:
+        while browser.find_by_css("ul pre li:nth-child(" + str(m) + ")").value:
+            try:
+                cpd_count += 1
+            except:
+                print("next")
+            m += 1
+    except:
+        print("loop is done at " + str(cpd_count))
+
+    m = 1
+    while m <= cpd_count:
+        n = 1
+        record = []
+        try:
+            while browser.find_by_css("ul pre li:nth-child(" + str(m) + ") div a:nth-child(" + str(n) + ")").value:
+                record.append(browser.find_by_css("ul pre li:nth-child(" + str(m) + ") div a:nth-child(" + str(n) + ")").value.replace('cpd:', ''))
+                n += 1
+
+        except:
+            print("next")
+        kegg.append(record)
+        print(record)
+        m += 1
 
     i = 1
     j = 1
     path_i = 0
-    kegg = []
-    pathway = get_pathways("http://rest.kegg.jp/list/pathway/rno")
+    pathway = get_pathways("http://rest.kegg.jp/list/pathway/" + organic_type, organic_type)
     path_len = len(pathway[0])
-    print(path_len)
+    # print(path_len)
     pathway_arr = []
     metabolism_arr = []
 
     # print(browser.find_by_css("ul pre li:nth-child(" + str(j) + ") div a:nth-child(" + str(i) + ")").value)
     # print(browser.find_by_css("ul pre li:nth-child(" + str(j) + ") a:nth-child(1)").value)
-
+    p = 0 # 2-d kegg list index
     pw_list = []
     while j <= count:
         if browser.find_by_css("ul pre li:nth-child(" + str(j) + ") a:nth-child(1)").value in pathway[0]:
             ind = pathway[0].index(browser.find_by_css("ul pre li:nth-child(" + str(j) + ") a:nth-child(1)").value)
-            pw_list.append(pathway[1][ind])
-            j += 1
+            for x in range(len(kegg[j - 1])):
+                pw_list.append(pathway[1][ind])
+        j += 1
 
-    print(pw_list)
+    # print(pw_list)
 
+    for x in pw_list:
+        for y in dict:
+            if x in y:
+                metabolism_arr.append(y[x])
+
+    # print(metabolism_arr)
+    k_list = list(chain.from_iterable(kegg))
+
+
+    big_table = []
+    big_table.append(pw_list)
+    big_table.append(k_list)
+    big_table.append(metabolism_arr)
+
+    return big_table
+
+
+    # print(kegg)
     # try:
     #     for d in dict:
     #         if browser.find_by_css("ul pre li:nth-child(" + str(j) + ") div a:nth-child(" + str(i) + ")").value in d:
@@ -132,32 +180,38 @@ def automate_kegg(kegg_list):
     time.sleep(86400)
 
 # get pathways - metabolism data
-def get_pathways(rest):
+def get_pathways(rest, organic_type):
     response = requests.get(rest)
     content = response.content
     decoded_string = content.decode("unicode_escape")
+    if organic_type == "rno":
+        d_list = decoded_string.split(" - Rattus norvegicus (rat)\n")
+    elif organic_type == "hsa":
+        d_list = decoded_string.split(" - Homo sapiens (human)\n")
+    elif organic_type == "ppu":
+        d_list = decoded_string.split(" - Pseudomonas putida KT2440\n")
 
-    list = decoded_string.split(" - Rattus norvegicus (rat)\n")
-    for x in range(len(list)):
-        list[x] = list[x].split("\t")
+
+    for x in range(len(d_list)):
+        d_list[x] = d_list[x].split("\t")
         # print(list[x])
 
-    for x in range(len(list)):
-        list[x][0] = list[x][0][5:13]
+    for x in range(len(d_list)):
+        d_list[x][0] = d_list[x][0][5:13]
 
     # remove last element
-    list.pop()
+    d_list.pop()
 
     transpose = []
 
-    for x in range(len(list[0])):
+    for x in range(len(d_list[0])):
         record = []
-        for y in range(len(list)):
-            record.append(list[y][x])
+        for y in range(len(d_list)):
+            record.append(d_list[y][x])
         transpose.append(record)
 
 
-    print(transpose)
+    # print(transpose)
 
     return transpose
 
