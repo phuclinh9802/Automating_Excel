@@ -115,17 +115,23 @@ def read_group_data_with_average(str):
 
 # convert data to table (all files can be converted)
 def read_all_data(file):
-    wb = xlrd.open_workbook(file)
-    ws = wb.sheet_by_index(0)
-    rows = ws.nrows
-    cols = ws.ncols
-    table = []
-    for y in range(cols):
-        record = []
-        for x in range(rows):
-            record.append(ws.cell(x, y).value)
-        new_record = record
-        table.append(new_record)
+    try:
+        wb = xlrd.open_workbook(file)
+        ws = wb.sheet_by_index(0)
+        rows = ws.nrows
+        cols = ws.ncols
+        table = []
+        for y in range(cols):
+            record = []
+            for x in range(rows):
+                record.append(ws.cell(x, y).value)
+            new_record = record
+            table.append(new_record)
+    except:
+        with open(file, newline='') as f:
+            reader = csv.reader(f)
+            data = list(reader)
+        return data
 
     return table
 
@@ -1476,6 +1482,32 @@ def automate_hmdb(table, adduct, tolerance_number):
     submit_1 = browser.find_by_value("Download Results As CSV").first.click()
 
 
+
+# check and add m/z based on kegg_id
+def add_mz_pathway(file1, file2):
+        storage = []
+        with open(file1, "r") as source:
+            reader = csv.reader(source)
+            for row in reader:
+                storage.append(row[1])
+
+        # read hmdb data
+        storage_2 = read_all_data(file2)
+        # mz
+        mz = []
+        # cpd name
+        cpd_list = []
+
+        # loop to check if kegg data matches hmdb kegg data
+        for x in range(len(storage)):
+            for y in range(len(storage_2)):
+                if storage[x] in storage_2[y]:
+                    mz.append(storage[y][0])
+                    cpd_list.append(storage[y][1])
+
+
+
+
 # automate by accessing to the map_pathway website
 def automate_kegg_id(file, organic_type):
     # get the kegg_id column from the hmdb excel file(s)
@@ -1659,12 +1691,12 @@ def merge_csv(filename, output_file):
 # automate_kegg_id("HMDB_both(KSHV+HIV-xKSHV-HIV-).csv", "hsa")
 
 
-automate_kegg_id("HMDB_both(Control_LipidxEtOH_Lipid).csv", "ppu")
-automate_kegg_id("HMDB_both(Control_LipidxTemp).csv", "ppu")
-automate_kegg_id("HMDB_both(Control_LipidxpH_Lipid).csv", "ppu")
-automate_kegg_id("HMDB_both(EtOH_LipidxTemp).csv", "ppu")
-automate_kegg_id("HMDB_both(EtOH_LipidxpH_Lipid).csv", "ppu")
-automate_kegg_id("HMDB_both(TempxpH_Lipid).csv", "ppu")
+# automate_kegg_id("HMDB_both(Control_LipidxEtOH_Lipid).csv", "ppu")
+# automate_kegg_id("HMDB_both(Control_LipidxTemp).csv", "ppu")
+# automate_kegg_id("HMDB_both(Control_LipidxpH_Lipid).csv", "ppu")
+# automate_kegg_id("HMDB_both(EtOH_LipidxTemp).csv", "ppu")
+# automate_kegg_id("HMDB_both(EtOH_LipidxpH_Lipid).csv", "ppu")
+# automate_kegg_id("HMDB_both(TempxpH_Lipid).csv", "ppu")
 
 # table = read_all_data("Cells_data_combined.xlsx")
 # print(len(table))
@@ -1678,3 +1710,5 @@ automate_kegg_id("HMDB_both(TempxpH_Lipid).csv", "ppu")
 # workbook.close()
 #
 # print(table[0][476:])
+
+print(read_all_data("HMDB_up(BeforexAfter)_1.csv")[3])
