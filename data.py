@@ -1484,26 +1484,73 @@ def automate_hmdb(table, adduct, tolerance_number):
 
 
 # check and add m/z based on kegg_id
-def add_mz_pathway(file1, file2):
-        storage = []
-        with open(file1, "r") as source:
-            reader = csv.reader(source)
-            for row in reader:
-                storage.append(row[1])
+def add_mz_pathway(storage, mz, cpd_list, file2):
 
-        # read hmdb data
-        storage_2 = read_all_data(file2)
-        # mz
-        mz = []
-        # cpd name
-        cpd_list = []
 
-        # loop to check if kegg data matches hmdb kegg data
-        for x in range(len(storage)):
-            for y in range(len(storage_2)):
-                if storage[x] in storage_2[y]:
-                    mz.append(storage[y][0])
-                    cpd_list.append(storage[y][1])
+    # store kegg data
+    kegg_list = []
+
+    # read hmdb data
+    storage_2 = read_all_data(file2)
+
+
+    mz_string = ''
+    mz_str_list = []
+    cpd_string = ''
+    cpd_str_list = []
+    # storage - kegg id list of pathway file
+    for x in range(len(storage)):
+        y = 0
+        count = 0
+        # kegg_id col in storage_2 - hmdb file
+        while y < len(storage_2):
+            if storage[x] != storage_2[y] and y == len(storage_2) - 1 and count == 0:
+                mz_str_list.append("")
+                cpd_str_list.append("")
+
+            elif storage[x] == storage_2[y][3]:
+                # if mz and cpd name already existed
+                # print("yes")
+                if storage_2[y][0] in mz and storage_2[y][2] in cpd_list:
+                    y += 1
+                    continue
+
+                # if both does not exist
+                elif (storage_2[y][0] not in mz) and (storage_2[y][2] not in cpd_list):
+                    cpd_list.append(storage_2[y][2])
+                    cpd_string += storage_2[y][2] + ', '
+                    mz.append(storage_2[y][0])
+                    mz_string += storage_2[y][0] + ', '
+
+                # if only cpd name does not exist
+                elif (storage_2[y][0] in mz) and (storage_2[y][2] not in cpd_list):
+                    cpd_list.append(storage_2[y][2])
+                    # print(storage_2[y][2])
+                    cpd_string += storage_2[y][2] + ', '
+
+                # if mz does not exist
+                elif storage_2[y][0] not in mz:
+                    # print(storage_2[y][0])
+                    mz.append(storage_2[y][0])
+                    mz_string += storage_2[y][0] + ', '
+                count += 1
+            y += 1
+
+        # add list of mz(s) and cpd names into a cell
+        mz_str_list.append(mz_string)
+        cpd_str_list.append(cpd_string)
+        print(len(mz_str_list))
+
+
+    #
+    # print(mz_str_list)
+    # print(cpd_str_list)
+    # print(len(mz_str_list))
+    # print(len(cpd_str_list))
+    mz = mz_str_list
+    cpd_list = cpd_str_list
+
+# add_mz_pathway("(TempxpH_Lipid)_pathway.xlsx","HMDB_both(TempxpH_Lipid).csv")
 
 
 
@@ -1512,18 +1559,22 @@ def add_mz_pathway(file1, file2):
 def automate_kegg_id(file, organic_type):
     # get the kegg_id column from the hmdb excel file(s)
     storage = []
-    visited = []
+
+    # mz
+    mz = []
+    # cpd_name
+    cpd_list = []
     with open(file, "r") as source:
         reader = csv.reader(source)
         for row in reader:
             if row[3] != "n/a" and row[3].replace(" ", "") not in storage:
                 storage.append(row[3])
-
-
-
+    k_list = hm.automate_kegg(storage, organic_type, file)[1]
+    add_mz_pathway(k_list, mz, cpd_list, file)
     # access to pathway website to automate
-    tab = hm.automate_kegg(storage, organic_type)
-
+    tab = hm.automate_kegg(storage, organic_type, file)
+    tab.insert(0, cpd_list)
+    tab.insert(0, mz)
     if 'HMDB_up' in file:
         workbook = xlsxwriter.Workbook(file.replace('HMDB_up', '').replace(').csv', '') + ')_up_pathway.xlsx')
     elif 'HMDB_down' in file:
@@ -1694,7 +1745,7 @@ def merge_csv(filename, output_file):
 # automate_kegg_id("HMDB_both(Control_LipidxEtOH_Lipid).csv", "ppu")
 # automate_kegg_id("HMDB_both(Control_LipidxTemp).csv", "ppu")
 # automate_kegg_id("HMDB_both(Control_LipidxpH_Lipid).csv", "ppu")
-# automate_kegg_id("HMDB_both(EtOH_LipidxTemp).csv", "ppu")
+automate_kegg_id("HMDB_both(EtOH_LipidxTemp).csv", "ppu")
 # automate_kegg_id("HMDB_both(EtOH_LipidxpH_Lipid).csv", "ppu")
 # automate_kegg_id("HMDB_both(TempxpH_Lipid).csv", "ppu")
 
@@ -1711,4 +1762,4 @@ def merge_csv(filename, output_file):
 #
 # print(table[0][476:])
 
-print(read_all_data("HMDB_up(BeforexAfter)_1.csv")[3])
+# print(read_all_data("HMDB_up(BeforexAfter)_1.csv")[3])
